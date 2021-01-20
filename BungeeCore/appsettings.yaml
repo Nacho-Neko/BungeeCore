@@ -1,0 +1,36 @@
+﻿# 最大连接数,超过连接数后的连接不在被处理
+MaxConnections : 100
+WhiteList : false
+
+#数据储存数据库
+DataBase:
+   ConfigId : "1"
+   DbType : "MySql"
+   ConnectionString : "SERVER=127.0.0.1;DATABASE=MinecraftTunnel;UID=root;PASSWORD='';PORT=3306;"
+
+#服务器监听的端口
+Server:
+   IP : 0.0.0.0
+   Port : 25565
+
+#转发的目标
+Nat:
+   IP: 103.85.86.192
+   Port : 32826
+
+#Query
+Query:
+  ServerAddress : mc.hypixel.net
+  Motd : "§f§k--§e§l ooplay公益 §f§k--§f | §c✈高性价比IP §9§l✔购买地址:quicknat.cn \n §o§e§l☆ Hypixel交流群12345667 ☆ §f| §b§l"
+
+#Ping(Scr,Nat,Null)
+#三种模式：
+#Scr 输出 客户端 到 转发机的延迟
+#Nat 输出 客户端 到 服务器的延迟
+#Null不会暴露延迟
+Ping : Scr
+
+
+Message:
+  NotFind : "{\"text\":\"你还没有购买加速IP,请访问:quicknat.cn购买\",\"color\":\"#ff5555\"}"
+  IsEnd : "{\"text\":\"您的加速IP,请访问:quicknat.cn重新购买\",\"color\":\"#ff5555\"}"

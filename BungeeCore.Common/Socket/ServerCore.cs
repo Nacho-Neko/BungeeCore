@@ -1,6 +1,4 @@
-﻿using Autofac;
-using BungeeCore.Common.Event;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Sockets;
@@ -9,20 +7,16 @@ namespace BungeeCore.Common.Sockets
 {
     public class ServerCore
     {
-        public readonly ILogger ILogger;                               // 日志
-        public readonly IConfiguration IConfiguration;                 // 配置文件
+        public delegate void ServerReceive(byte[] Packet);
+        public event ServerReceive OnServerReceive;
+        public delegate void Close();
+        public event Close OnClose;
 
+        private readonly ILogger ILogger;                               // 日志
+        private readonly IConfiguration IConfiguration;                 // 配置文件
         private byte[] ReceiveBuffer;
-
-        private ILifetimeScope LifetimeScope;
         private Socket Socket;
-        private PlayerToken playerToken;
         private SocketAsyncEventArgs ReceiveEventArgs;
-
-        #region 事件
-        public static ServerReceive OnServerReceive;
-        public static PlayerLeave OnClose;
-        #endregion
 
         public ServerCore(ILogger<ServerCore> ILogger, IConfiguration IConfiguration)
         {
@@ -38,29 +32,45 @@ namespace BungeeCore.Common.Sockets
 
         public void SendPacket(byte[] buffer, int offset, int count)
         {
-            SocketAsyncEventArgs SendEventArgs = new SocketAsyncEventArgs();
-            SendEventArgs.SetBuffer(buffer, offset, count);
-            Socket.SendAsync(SendEventArgs);
+            try
+            {
+                SocketAsyncEventArgs SendEventArgs = new SocketAsyncEventArgs();
+                SendEventArgs.SetBuffer(buffer, offset, count);
+                Socket.SendAsync(SendEventArgs);
+            }
+            catch (Exception ex)
+            {
+                ILogger.LogError(ex.Message);
+            }
         }
         public void SendPacket(byte[] Packet)
         {
-            SocketAsyncEventArgs SendEventArgs = new SocketAsyncEventArgs();
-            SendEventArgs.SetBuffer(Packet);
-            Socket.SendAsync(SendEventArgs);
-        }
-        public void Accpet(Socket Socket, PlayerToken playerToken)
-        {
-            this.Socket = Socket;
-            this.playerToken = playerToken;
-            bool willRaiseEvent = Socket.ReceiveAsync(ReceiveEventArgs);
-            if (!willRaiseEvent)
+            try
             {
-                ProcessReceive(ReceiveEventArgs);
+                SocketAsyncEventArgs SendEventArgs = new SocketAsyncEventArgs();
+                SendEventArgs.SetBuffer(Packet);
+                Socket.SendAsync(SendEventArgs);
+            }
+            catch (Exception ex)
+            {
+                ILogger.LogError(ex.Message);
             }
         }
-        public void Start(ILifetimeScope LifetimeScope)
+        public void Accpet(Socket Socket)
         {
-            this.LifetimeScope = LifetimeScope;
+            try
+            {
+                this.Socket = Socket;
+                bool willRaiseEvent = Socket.ReceiveAsync(ReceiveEventArgs);
+                if (!willRaiseEvent)
+                {
+                    ProcessReceive(ReceiveEventArgs);
+                }
+            }
+            catch (Exception ex)
+            {
+                ILogger.LogError(ex.Message);
+            }
         }
         /// <summary>
         /// 每当套接字上完成接收或发送操作时，都会调用此方法。
@@ -84,29 +94,36 @@ namespace BungeeCore.Common.Sockets
         /// <param name="e">操作对象</param>
         private void ProcessReceive(SocketAsyncEventArgs socketAsync)
         {
-            int offset = ReceiveEventArgs.Offset;
-            int count = ReceiveEventArgs.BytesTransferred;
-            byte[] Buffer = ReceiveEventArgs.Buffer;
-            if (count > 0 && ReceiveEventArgs.SocketError == SocketError.Success)
+            try
             {
-                if (OnServerReceive != null)
+                int offset = ReceiveEventArgs.Offset;
+                int count = ReceiveEventArgs.BytesTransferred;
+                byte[] Buffer = ReceiveEventArgs.Buffer;
+                if (count > 0 && ReceiveEventArgs.SocketError == SocketError.Success)
                 {
-                    byte[] packet = new byte[count];
-                    Array.Copy(Buffer, offset, packet, 0, count);
-                    OnServerReceive(playerToken, packet);
+                    if (OnServerReceive != null)
+                    {
+                        byte[] packet = new byte[count];
+                        Array.Copy(Buffer, offset, packet, 0, count);
+                        OnServerReceive(packet);
+                    }
+                    bool willRaiseEvent = Socket.ReceiveAsync(ReceiveEventArgs);
+                    if (!willRaiseEvent)
+                        ProcessReceive(ReceiveEventArgs);
                 }
-                bool willRaiseEvent = Socket.ReceiveAsync(ReceiveEventArgs);
-                if (!willRaiseEvent)
-                    ProcessReceive(ReceiveEventArgs);
+                else
+                {
+                    Stop();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Stop();
+                ILogger.LogError(ex.Message);
             }
         }
         private void Stop()
         {
-            OnClose.Invoke(playerToken);
+            OnClose?.Invoke();
             // ServiceScope.Dispose();
             // Socket.Shutdown(SocketShutdown.Send);
             Socket.Close();

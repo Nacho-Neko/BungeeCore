@@ -2,18 +2,21 @@
 using BungeeCore.Common;
 using BungeeCore.Common.Sockets;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MinecraftTunnel.Core
 {
-    public class ServerListen
+    public class ServerListen : IHostedService
     {
         public readonly ILogger Logger;                               // 日志
         public readonly IConfiguration Configuration;                 // 配置文件
-        private readonly ILifetimeScope LifetimeScope;            // 服务
+        private readonly ILifetimeScope LifetimeScope;                // 服务
         private Socket ServerSocket;                                  // Socket
         public ServerListen(ILogger<ServerListen> Logger, IConfiguration Configuration, ILifetimeScope LifetimeScope)
         {
@@ -63,12 +66,23 @@ namespace MinecraftTunnel.Core
         {
             using (ILifetimeScope lifetimeScope = LifetimeScope.BeginLifetimeScope())
             {
-                ServerCore serverCore = lifetimeScope.Resolve<ServerCore>();
                 PlayerToken playerToken = lifetimeScope.Resolve<PlayerToken>();
-                serverCore.Accpet(e.AcceptSocket, playerToken);
+                playerToken.ServerCore.Accpet(e.AcceptSocket);
             }
             // 接受后面的连接请求
             StartAccept(e);
+        }
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            Listen();
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            ServerSocket.Close();
+            return Task.CompletedTask;
         }
     }
 }

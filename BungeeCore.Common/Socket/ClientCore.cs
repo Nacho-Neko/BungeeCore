@@ -1,5 +1,4 @@
-﻿using BungeeCore.Common.Event;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Net;
@@ -9,20 +8,20 @@ namespace BungeeCore.Common.Sockets
 {
     public class ClientCore
     {
-        public readonly ILogger Logger;                               // 日志
-        public readonly IConfiguration Configuration;                 // 配置文件
+        private readonly ILogger Logger;                               // 日志
+        private readonly IConfiguration Configuration;                 // 配置文件
         private Socket Socket;                                         // Socket
         private SocketAsyncEventArgs ReceiveEventArgs;
-
         private byte[] ReceiveBuffer = new byte[2097151];
-        private PlayerToken PlayerToken;
 
         #region 事件
-        public static TunnelReceive OnTunnelReceive;
-        public static PlayerLeave OnClose;
+        public delegate void TunnelReceive(byte[] Packet);
+        public event TunnelReceive OnTunnelReceive;
+        public delegate void Close();
+        public event Close OnClose;
         #endregion
 
-        public ClientCore(ILogger Logger, IConfiguration Configuration)
+        public ClientCore(ILogger<ClientCore> Logger, IConfiguration Configuration)
         {
             this.Logger = Logger;
             this.Configuration = Configuration;
@@ -33,9 +32,8 @@ namespace BungeeCore.Common.Sockets
             SendEventArgs.SetBuffer(Packet);
             Socket.SendAsync(SendEventArgs);
         }
-        public void Start(PlayerToken PlayerToken)
+        public void Start()
         {
-            this.PlayerToken = PlayerToken;
             IPAddress ipaddr;
             if (!IPAddress.TryParse(Configuration["Nat:IP"], out ipaddr))
             {
@@ -45,7 +43,6 @@ namespace BungeeCore.Common.Sockets
                     ipaddr = iplist[0];
                 }
             }
-
             IPEndPoint localEndPoint = new IPEndPoint(ipaddr, Configuration.GetValue<int>("Nat:Port"));
             Socket = new Socket(localEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
             {
@@ -85,7 +82,7 @@ namespace BungeeCore.Common.Sockets
                 {
                     byte[] Buffer = new byte[ReceiveEventArgs.BytesTransferred];
                     Array.Copy(ReceiveEventArgs.Buffer, ReceiveEventArgs.Offset, Buffer, 0, ReceiveEventArgs.BytesTransferred);
-                    OnTunnelReceive(PlayerToken, Buffer);
+                    OnTunnelReceive(Buffer);
                 }
                 bool willRaiseEvent = Socket.ReceiveAsync(ReceiveEventArgs);
                 if (!willRaiseEvent)
@@ -93,7 +90,7 @@ namespace BungeeCore.Common.Sockets
             }
             else
             {
-                CloseClientSocket(e);
+                Stop();
             }
         }
         private void ProcessConnect(SocketAsyncEventArgs e)
@@ -109,13 +106,9 @@ namespace BungeeCore.Common.Sockets
                 }
             }
         }
-        private void CloseClientSocket(SocketAsyncEventArgs e)
+        private void Stop()
         {
-            Stop();
-            OnClose.Invoke(PlayerToken);
-        }
-        public void Stop()
-        {
+            OnClose?.Invoke();
             Socket.Shutdown(SocketShutdown.Both);
             Socket.Close();
             Socket.Dispose();

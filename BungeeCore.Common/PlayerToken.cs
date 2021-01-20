@@ -1,24 +1,50 @@
 ﻿using BungeeCore.Common.Sockets;
+using Microsoft.Extensions.Logging;
 using System;
 
 namespace BungeeCore.Common
 {
     public class PlayerToken
     {
-        public ServerCore ServerCore;
-        public ClientCore ClientCore;
+        public readonly ILogger Logger;
+        public readonly ServerCore ServerCore;
+        public readonly ClientCore ClientCore;
 
         public string PlayerName;                            // 玩家Name
 
         public DateTime ConnectDateTime;                     // 连接时间
         public DateTime EndTime;                             // 到期时间
 
+        public PlayerToken(ILogger<PlayerToken> Logger, ServerCore ServerCore, ClientCore ClientCore)
+        {
+            this.Logger = Logger;
+            this.ServerCore = ServerCore;
+            this.ClientCore = ClientCore;
+
+            ServerCore.OnClose += OnClose;
+            ClientCore.OnClose += OnClose;
+            ServerCore.OnServerReceive += ServerCore_OnServerReceive;
+            ClientCore.OnTunnelReceive += ClientCore_OnTunnelReceive;
+        }
+        private void ClientCore_OnTunnelReceive(byte[] Packet)
+        {
+            throw new NotImplementedException();
+        }
+        private void ServerCore_OnServerReceive(byte[] Packet)
+        {
+            throw new NotImplementedException();
+        }
         public void StartTunnel()
         {
-            ClientCore = new ClientCore(ServerCore.ILogger, ServerCore.IConfiguration);
-            ClientCore.Start(this);
+            ClientCore.Start();
         }
-
+        private void OnClose()
+        {
+            ServerCore.OnClose -= OnClose;
+            ClientCore.OnClose -= OnClose;
+            ServerCore.OnServerReceive -= ServerCore_OnServerReceive;
+            ClientCore.OnTunnelReceive -= ClientCore_OnTunnelReceive;
+        }
         /*
         public void Login(string ServerAddress, ushort ServerPort)
         {
