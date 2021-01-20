@@ -6,21 +6,19 @@ using System.Net.Sockets;
 
 namespace BungeeCore.Common.Sockets
 {
-    public class ClientCore
+    public class ClientCore  : IDisposable
     {
         private readonly ILogger Logger;                               // 日志
         private readonly IConfiguration Configuration;                 // 配置文件
         private Socket Socket;                                         // Socket
         private SocketAsyncEventArgs ReceiveEventArgs;
         private byte[] ReceiveBuffer = new byte[2097151];
-
         #region 事件
         public delegate void TunnelReceive(byte[] Packet);
         public event TunnelReceive OnTunnelReceive;
         public delegate void Close();
         public event Close OnClose;
         #endregion
-
         public ClientCore(ILogger<ClientCore> Logger, IConfiguration Configuration)
         {
             this.Logger = Logger;
@@ -112,6 +110,12 @@ namespace BungeeCore.Common.Sockets
             Socket.Shutdown(SocketShutdown.Both);
             Socket.Close();
             Socket.Dispose();
+            Dispose();
+        }
+        public void Dispose()
+        {
+            ReceiveBuffer = null;
+            ReceiveEventArgs = null;
         }
     }
 }

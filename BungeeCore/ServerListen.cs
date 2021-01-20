@@ -1,12 +1,13 @@
 ﻿using Autofac;
-using BungeeCore.Common;
 using BungeeCore.Common.Sockets;
+using BungeeCore.Service;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -64,21 +65,21 @@ namespace MinecraftTunnel.Core
         /// <param name="acceptEventArg"></param>
         private void ProcessAccept(SocketAsyncEventArgs e)
         {
-            using (ILifetimeScope lifetimeScope = LifetimeScope.BeginLifetimeScope())
+            ILifetimeScope lifetimeScope = LifetimeScope.BeginLifetimeScope();
+            PlayerService playerToken = lifetimeScope.Resolve<PlayerService>();
+            playerToken.ServerCore.Accpet(e.AcceptSocket);
+            if (playerToken is IDisposable disposable)
             {
-                PlayerToken playerToken = lifetimeScope.Resolve<PlayerToken>();
-                playerToken.ServerCore.Accpet(e.AcceptSocket);
+                lifetimeScope.Disposer.AddInstanceForDisposal(disposable);
             }
             // 接受后面的连接请求
             StartAccept(e);
         }
-
         public Task StartAsync(CancellationToken cancellationToken)
         {
             Listen();
             return Task.CompletedTask;
         }
-
         public Task StopAsync(CancellationToken cancellationToken)
         {
             ServerSocket.Close();

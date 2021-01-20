@@ -5,7 +5,7 @@ using System.Net.Sockets;
 
 namespace BungeeCore.Common.Sockets
 {
-    public class ServerCore
+    public class ServerCore : IDisposable
     {
         public delegate void ServerReceive(byte[] Packet);
         public event ServerReceive OnServerReceive;
@@ -91,41 +91,38 @@ namespace BungeeCore.Common.Sockets
         /// <param name="e">操作对象</param>
         private void ProcessReceive(SocketAsyncEventArgs socketAsync)
         {
-            try
+            int offset = ReceiveEventArgs.Offset;
+            int count = ReceiveEventArgs.BytesTransferred;
+            byte[] Buffer = ReceiveEventArgs.Buffer;
+            if (count > 0 && ReceiveEventArgs.SocketError == SocketError.Success)
             {
-                int offset = ReceiveEventArgs.Offset;
-                int count = ReceiveEventArgs.BytesTransferred;
-                byte[] Buffer = ReceiveEventArgs.Buffer;
-                if (count > 0 && ReceiveEventArgs.SocketError == SocketError.Success)
+                if (OnServerReceive != null)
                 {
-                    if (OnServerReceive != null)
-                    {
-                        byte[] packet = new byte[count];
-                        Array.Copy(Buffer, offset, packet, 0, count);
-                        OnServerReceive(packet);
-                    }
-                    bool willRaiseEvent = Socket.ReceiveAsync(ReceiveEventArgs);
-                    if (!willRaiseEvent)
-                        ProcessReceive(ReceiveEventArgs);
+                    byte[] packet = new byte[count];
+                    Array.Copy(Buffer, offset, packet, 0, count);
+                    OnServerReceive(packet);
                 }
-                else
-                {
-                    Stop();
-                }
+                bool willRaiseEvent = Socket.ReceiveAsync(ReceiveEventArgs);
+                if (!willRaiseEvent)
+                    ProcessReceive(ReceiveEventArgs);
             }
-            catch (Exception ex)
+            else
             {
-                ILogger.LogError(ex.Message);
+                Stop();
             }
         }
         private void Stop()
         {
             OnClose?.Invoke();
-            // ServiceScope.Dispose();
-            // Socket.Shutdown(SocketShutdown.Send);
             Socket.Close();
             Socket.Dispose();
-            // ServiceScope.Dispose();
+            Dispose();
+        }
+
+        public void Dispose()
+        {
+            ReceiveBuffer = null;
+            ReceiveEventArgs = null;
         }
     }
 }

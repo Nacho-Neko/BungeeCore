@@ -2,6 +2,7 @@
 using Autofac.Extensions.DependencyInjection;
 using BungeeCore.Common;
 using BungeeCore.Common.Sockets;
+using BungeeCore.Service;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -29,6 +30,7 @@ namespace BungeeCore
                  .ConfigureServices((hostContext, services) =>
                  {
                      services.AddHostedService<ServerListen>();
+                 
                  })
                  .ConfigureAppConfiguration((hostContext, configApp) =>
                  {
@@ -46,11 +48,14 @@ namespace BungeeCore
 
         private static void ApplicationContainer(ContainerBuilder obj)
         {
+            obj.RegisterType<HandlerServcie>().SingleInstance();
+            obj.RegisterType<AnalysisService>().SingleInstance();
+
             var assemblysServices = Assembly.Load("BungeeCore.Service");
-            obj.RegisterAssemblyTypes(assemblysServices);
-            obj.RegisterType<ClientCore>().OwnedByLifetimeScope();
-            obj.RegisterType<ServerCore>().OwnedByLifetimeScope();
-            obj.RegisterType<PlayerToken>().OwnedByLifetimeScope();
+            obj.RegisterAssemblyTypes(assemblysServices).InstancePerLifetimeScope().OwnedByLifetimeScope();
+            obj.RegisterType<ClientCore>().InstancePerLifetimeScope().OwnedByLifetimeScope();
+            obj.RegisterType<ServerCore>().InstancePerLifetimeScope().OwnedByLifetimeScope();
+            obj.RegisterType<PlayerService>().InstancePerLifetimeScope().OwnedByLifetimeScope();
         }
     }
 }
