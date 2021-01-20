@@ -4,7 +4,6 @@ namespace BungeeCore.Model
 {
     public class Chat
     {
-        public int PacketId = 0;
         public string text { get; set; }
         public string color { get; set; }
         public bool bold { get; set; }

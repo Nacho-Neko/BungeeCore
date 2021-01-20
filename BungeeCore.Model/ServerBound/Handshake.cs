@@ -33,7 +33,7 @@ namespace BungeeCore.Model.ServerBound
     }
     public enum NextState
     {
-        status = 1,
-        login = 2
+        Status = 1,
+        Login = 2
     }
 }

@@ -6,6 +6,5 @@ namespace BungeeCore.Model.ClientBound
     public class Pong
     {
         public long Payload { get; set; }
-        public int PacketId => 0;
     }
 }

@@ -11,10 +11,12 @@ namespace BungeeCore.Service
     public class AnalysisService
     {
         private readonly ILogger Logger;
+
         private static Dictionary<int, Type> ClientBound = new Dictionary<int, Type>();
         private static Dictionary<int, Type> ServerBound = new Dictionary<int, Type>();
         public AnalysisService(ILogger<AnalysisService> Logger)
         {
+
             this.Logger = Logger;
 
             Assembly assembly = Assembly.Load("BungeeCore.Model");
@@ -29,33 +31,22 @@ namespace BungeeCore.Service
                         if (packetAttribute.Bound == Bound.Client)
                             ClientBound.Add(packetAttribute.PakcetId, type);
                         else if (packetAttribute.Bound == Bound.Server)
-                            ClientBound.Add(packetAttribute.PakcetId, type);
+                            ServerBound.Add(packetAttribute.PakcetId, type);
                         break;
                     }
                 }
             };
         }
-        public object MapToEntities(Bound bound, int PacketId, byte[] PacketData)
+        public object MapToEntities(Type type, byte[] PacketData)
         {
             Block block = new Block(PacketData);
-            if (bound == Bound.Server)
-            {
-                ServerBound.TryGetValue(PacketId, out Type value);
-                return EntityMapper.MapToEntities(value, block);
-            }
-            if (bound == Bound.Client)
-            {
-                ServerBound.TryGetValue(PacketId, out Type value);
-                return EntityMapper.MapToEntities(value, block);
-            }
-            return null;
+            return EntityMapper.MapToEntities(type, block);
         }
         public List<ProtocolHeand> AnalysisHeand(bool Compression, byte[] Packet)
         {
             Block block = new Block(Packet);
             List<ProtocolHeand> protocolHeands = new List<ProtocolHeand>();
             ProtocolHeand protocolHeand;
-            // 根据玩家的 Compression 标志 来处理数据包
             if (Compression)
             {
                 do
