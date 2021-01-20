@@ -22,14 +22,11 @@ namespace BungeeCore.Common.Sockets
         {
             this.ILogger = ILogger;
             this.IConfiguration = IConfiguration;
-
             ReceiveBuffer = new byte[2097151];
-
             ReceiveEventArgs = new SocketAsyncEventArgs();
             ReceiveEventArgs.SetBuffer(ReceiveBuffer, 0, ReceiveBuffer.Length);
             ReceiveEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(IO_Completed);
         }
-
         public void SendPacket(byte[] buffer, int offset, int count)
         {
             try
