@@ -4,7 +4,6 @@ using BungeeCore.Common.Sockets;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace BungeeCore.Service
 {
@@ -15,6 +14,8 @@ namespace BungeeCore.Service
         public readonly ClientCore ClientCore;
         private readonly HandlerServcie HandlerServcie;
         private readonly AnalysisService AnalysisService;
+
+        private readonly Dictionary<int, IEnumerator<bool>> keyValues = new Dictionary<int, IEnumerator<bool>>();
 
         private ILifetimeScope LifetimeScope;
 
@@ -53,10 +54,18 @@ namespace BungeeCore.Service
                     if (type != null)
                     {
                         IService service = (IService)LifetimeScope.Resolve(type);
-                        object obj = AnalysisService.MapToEntities(service.PacketTypes, protocolHeand.PacketData);
 
-
-                        flag = service.Handler(obj).GetEnumerator().MoveNext();
+                        if (keyValues.TryGetValue(protocolHeand.PacketId, out IEnumerator<bool> value))
+                        {
+                            if (value.MoveNext())
+                            {
+                                flag = value.Current;
+                            }
+                        }
+                        else
+                        {
+                            object obj = AnalysisService.MapToEntities(service.PacketTypes, protocolHeand.PacketData);
+                        }
 
 
                     }
