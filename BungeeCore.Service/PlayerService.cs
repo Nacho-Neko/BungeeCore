@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using BungeeCore.Common.Attributes;
 using BungeeCore.Common.Helper.Protocol;
 using BungeeCore.Common.Sockets;
 using Microsoft.Extensions.Logging;
@@ -10,6 +11,7 @@ namespace BungeeCore.Service
     public class PlayerService : IDisposable
     {
         public readonly ILogger Logger;
+        private readonly InfoService infoService;
         public readonly ServerCore ServerCore;
         public readonly ClientCore ClientCore;
         private readonly HandlerServcie HandlerServcie;
@@ -19,13 +21,11 @@ namespace BungeeCore.Service
 
         private ILifetimeScope LifetimeScope;
 
-        public string PlayerName;                            // 玩家Name
 
-        public DateTime ConnectDateTime;                     // 连接时间
-        public DateTime EndTime;                             // 到期时间
-        public PlayerService(ILogger<PlayerService> Logger, ServerCore ServerCore, ClientCore ClientCore, HandlerServcie HandlerServcie, AnalysisService AnalysisService, ILifetimeScope LifetimeScope)
+        public PlayerService(ILogger<PlayerService> Logger, InfoService infoService, ServerCore ServerCore, ClientCore ClientCore, HandlerServcie HandlerServcie, AnalysisService AnalysisService, ILifetimeScope LifetimeScope)
         {
             this.Logger = Logger;
+            this.infoService = infoService;
             this.ServerCore = ServerCore;
             this.ClientCore = ClientCore;
             this.HandlerServcie = HandlerServcie;
@@ -40,7 +40,7 @@ namespace BungeeCore.Service
 
         private void ClientCore_OnTunnelReceive(byte[] Packet)
         {
-
+            ServerCore.SendPacket(Packet);
         }
         private void ServerCore_OnServerReceive(byte[] Packet)
         {
@@ -50,7 +50,7 @@ namespace BungeeCore.Service
                 List<ProtocolHeand> protocolHeands = AnalysisService.AnalysisHeand(false, Packet);
                 foreach (var protocolHeand in protocolHeands)
                 {
-                    Type type = HandlerServcie.IHandler(protocolHeand.PacketId);
+                    Type type = HandlerServcie.IHandler(protocolHeand.PacketId, infoService.Rose);
                     if (type != null)
                     {
                         IService service = (IService)LifetimeScope.Resolve(type);
@@ -72,7 +72,6 @@ namespace BungeeCore.Service
                             }
                         }
                     }
-
                 }
             }
             catch (Exception ex)
@@ -81,12 +80,8 @@ namespace BungeeCore.Service
             }
             if (flag)
             {
-
+                ClientCore.SendPacket(Packet);
             }
-        }
-        public void StartTunnel()
-        {
-            ClientCore.Start();
         }
         private void OnClose()
         {

@@ -9,8 +9,8 @@ namespace BungeeCore.Service
     public class HandlerServcie
     {
         private readonly ILogger Logger;
-        private static Dictionary<int, Type> ClientHandler = new Dictionary<int, Type>();
-        // private static Dictionary<int, Type> ServerHandler = new Dictionary<int, Type>();
+        private static Dictionary<int, Type> AnonymouseHandler = new Dictionary<int, Type>();
+        private static Dictionary<int, Type> PlayerHandler = new Dictionary<int, Type>();
 
         public HandlerServcie(ILogger<HandlerServcie> Logger)
         {
@@ -27,7 +27,11 @@ namespace BungeeCore.Service
                 {
                     if (attribute is PacketHandler packetHandler)
                     {
-                        ClientHandler.Add(packetHandler.PakcetId, type);
+                        switch (packetHandler.Rose)
+                        {
+                            case Rose.Anonymouse: AnonymouseHandler.Add(packetHandler.PakcetId, type); break;
+                            case Rose.Player: PlayerHandler.Add(packetHandler.PakcetId, type); break;
+                        }
                         HandlerCount++;
                         break;
                     }
@@ -36,14 +40,19 @@ namespace BungeeCore.Service
             Logger.LogInformation($"Handler Count : {HandlerCount}");
         }
 
-        public Type IHandler(int PacketId)
+        public Type IHandler(int PacketId, Rose rose)
         {
-            if (ClientHandler.TryGetValue(PacketId, out Type type))
-            {
-                return type;
-            }
+            if (rose == Rose.Anonymouse)
+                if (AnonymouseHandler.TryGetValue(PacketId, out Type type))
+                {
+                    return type;
+                }
+            if (rose == Rose.Player)
+                if (PlayerHandler.TryGetValue(PacketId, out Type type))
+                {
+                    return type;
+                }
             return null;
         }
-
     }
 }

@@ -7,10 +7,10 @@ using System.Security.Cryptography;
 
 namespace BungeeCore.Service
 {
-    [PacketHandler(PakcetId = 2)]
+    [PacketHandler(PakcetId = 1, Rose = Rose.Player)]
     public class EncryptionService : IService
     {
-        public Type PacketTypes { get; private set; }
+        public Type PacketTypes { get; private set; } = typeof(EncryptionRequest);
         public object Parameter { private get; set; }
 
         private readonly ILogger Logger;
@@ -19,7 +19,6 @@ namespace BungeeCore.Service
         public EncryptionService(ILogger<EncryptionService> Logger)
         {
             this.Logger = Logger;
-            PacketTypes = typeof(EncryptionRequest);
         }
         public IEnumerable<bool> Handler()
         {

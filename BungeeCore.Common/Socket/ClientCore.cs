@@ -13,6 +13,8 @@ namespace BungeeCore.Common.Sockets
         private Socket Socket;                                         // Socket
         private SocketAsyncEventArgs ReceiveEventArgs;
         private byte[] ReceiveBuffer = new byte[2097151];
+
+        public bool Connect;
         #region 事件
         public delegate void TunnelReceive(byte[] Packet);
         public event TunnelReceive OnTunnelReceive;
@@ -46,7 +48,6 @@ namespace BungeeCore.Common.Sockets
             {
                 NoDelay = true
             };
-
             SocketAsyncEventArgs connSocketAsyncEventArgs = new SocketAsyncEventArgs
             {
                 RemoteEndPoint = localEndPoint
@@ -102,6 +103,7 @@ namespace BungeeCore.Common.Sockets
                 {
                     ProcessReceive(ReceiveEventArgs);
                 }
+                Connect = true;
             }
         }
         private void Stop()

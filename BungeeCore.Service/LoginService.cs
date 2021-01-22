@@ -13,22 +13,27 @@ using static BungeeCore.Model.ClientBound.Response;
 
 namespace BungeeCore.Service
 {
-    [PacketHandler(PakcetId = 0)]
+    [PacketHandler(PakcetId = 0, Rose = Rose.Anonymouse)]
     public class LoginService : IService
     {
         private readonly ILogger Logger;
+        private readonly InfoService infoService;
         private readonly ServerCore ServerCore;
+        private readonly TunnelServcie TunnelServcie;
+        private readonly HandlerServcie HandlerServcie;
 
         private Handshake handshake;
         private Login login;
         private bool IsForge;
-        public Type PacketTypes { get; private set; }
+        public Type PacketTypes { get; private set; } = typeof(Handshake);
         public object Parameter { set; private get; }
-        public LoginService(ILogger<LoginService> Logger, ServerCore ServerCore)
+        public LoginService(ILogger<LoginService> Logger, InfoService infoService, ServerCore ServerCore, TunnelServcie TunnelServcie, HandlerServcie HandlerServcie)
         {
             this.Logger = Logger;
+            this.infoService = infoService;
             this.ServerCore = ServerCore;
-            PacketTypes = typeof(Handshake);
+            this.TunnelServcie = TunnelServcie;
+            this.HandlerServcie = HandlerServcie;
         }
         public IEnumerable<bool> Handler()
         {
@@ -61,6 +66,14 @@ namespace BungeeCore.Service
             yield return false;
             login = (Login)Parameter;
             Logger.LogInformation($"PlayerLogin : {login.Name} {DateTime.Now.ToString()}");
+
+            TunnelServcie.Parameter = handshake;
+            IEnumerator<bool> enumerator = TunnelServcie.Handler().GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                TunnelServcie.Parameter = login;
+            }
+            infoService.Info(login.Name);
             // 开始登录
             yield return false;
         }
