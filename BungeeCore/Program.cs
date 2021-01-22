@@ -46,16 +46,10 @@ namespace BungeeCore
                  .UseConsoleLifetime()
                  .UseServiceProviderFactory(new AutofacServiceProviderFactory(ApplicationContainer));
 
-        private static void ApplicationContainer(ContainerBuilder obj)
+        private static void ApplicationContainer(ContainerBuilder containerBuilder)
         {
-            obj.RegisterType<HandlerServcie>().SingleInstance();
-            obj.RegisterType<AnalysisService>().SingleInstance();
-
-            var assemblysServices = Assembly.Load("BungeeCore.Service");
-            obj.RegisterAssemblyTypes(assemblysServices).InstancePerLifetimeScope().OwnedByLifetimeScope();
-            obj.RegisterType<ClientCore>().InstancePerLifetimeScope().OwnedByLifetimeScope();
-            obj.RegisterType<ServerCore>().InstancePerLifetimeScope().OwnedByLifetimeScope();
-            obj.RegisterType<PlayerService>().InstancePerLifetimeScope().OwnedByLifetimeScope();
+            containerBuilder.RegisterType<HandlerServcie>().SingleInstance();
+            containerBuilder.RegisterType<AnalysisService>().SingleInstance();
         }
     }
 }

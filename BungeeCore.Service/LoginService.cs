@@ -19,20 +19,24 @@ namespace BungeeCore.Service
         private readonly ILogger Logger;
         private readonly ServerCore ServerCore;
 
-        private int ProtocolVersion;
+        private Handshake handshake;
+        private Login login;
+        private bool IsForge;
         public Type PacketTypes { get; private set; }
+        public object Parameter { set; private get; }
         public LoginService(ILogger<LoginService> Logger, ServerCore ServerCore)
         {
             this.Logger = Logger;
             this.ServerCore = ServerCore;
             PacketTypes = typeof(Handshake);
         }
-        public IEnumerable<bool> Handler(object obj)
+        public IEnumerable<bool> Handler()
         {
-            Handshake handshake = (Handshake)obj;
+            handshake = (Handshake)Parameter;
             if (handshake.NextState() == NextState.Status)
             {
-                Response response = new Response("1.8.9", ProtocolVersion);
+                yield return false;
+                Response response = new Response("1.8.9", handshake.ProtocolVersion);
                 response.players.online = 10;
                 response.players.max = 100;
                 response.players.sample = new List<SampleItem>();
@@ -52,9 +56,12 @@ namespace BungeeCore.Service
                 }
                 yield return false;
             }
+            IsForge = handshake.ServerAddress.IndexOf("FML") > 0;
             PacketTypes = typeof(Login);
             yield return false;
-            Login login = (Login)obj;
+            login = (Login)Parameter;
+            Logger.LogInformation($"PlayerLogin : {login.Name} {DateTime.Now.ToString()}");
+            // 开始登录
             yield return false;
         }
     }

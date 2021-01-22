@@ -65,7 +65,14 @@ namespace MinecraftTunnel.Core
         /// <param name="acceptEventArg"></param>
         private void ProcessAccept(SocketAsyncEventArgs e)
         {
-            ILifetimeScope lifetimeScope = LifetimeScope.BeginLifetimeScope();
+            ILifetimeScope lifetimeScope = LifetimeScope.BeginLifetimeScope(ContainerBuilder =>
+            {
+                var assemblysServices = Assembly.Load("BungeeCore.Service");
+                ContainerBuilder.RegisterAssemblyTypes(assemblysServices).SingleInstance().OwnedByLifetimeScope();
+                ContainerBuilder.RegisterType<ClientCore>().SingleInstance().OwnedByLifetimeScope();
+                ContainerBuilder.RegisterType<ServerCore>().SingleInstance().OwnedByLifetimeScope();
+                ContainerBuilder.RegisterType<PlayerService>().SingleInstance().OwnedByLifetimeScope();
+            });
             PlayerService playerToken = lifetimeScope.Resolve<PlayerService>();
             playerToken.ServerCore.Accpet(e.AcceptSocket);
             if (playerToken is IDisposable disposable)

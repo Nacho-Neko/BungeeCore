@@ -54,29 +54,31 @@ namespace BungeeCore.Service
                     if (type != null)
                     {
                         IService service = (IService)LifetimeScope.Resolve(type);
-
+                        service.Parameter = AnalysisService.MapToEntities(service.PacketTypes, protocolHeand.PacketData);
                         if (keyValues.TryGetValue(protocolHeand.PacketId, out IEnumerator<bool> value))
                         {
                             if (value.MoveNext())
-                            {
                                 flag = value.Current;
-                            }
+                            else
+                                keyValues.Remove(protocolHeand.PacketId);
                         }
                         else
                         {
-                            object obj = AnalysisService.MapToEntities(service.PacketTypes, protocolHeand.PacketData);
+                            IEnumerator<bool> enumerator = service.Handler().GetEnumerator();
+                            if (enumerator.MoveNext())
+                            {
+                                flag = enumerator.Current;
+                                keyValues.Add(protocolHeand.PacketId, enumerator);
+                            }
                         }
-
-
                     }
+
                 }
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex.Message);
             }
-
-
             if (flag)
             {
 

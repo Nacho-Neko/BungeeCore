@@ -49,5 +49,12 @@ namespace BungeeCore.Common.Extensions.Conver
             stream.WriteByte((byte)(value >> 8 & 0xFF));
             stream.WriteByte((byte)(value & 0xFF));
         }
+        public static void WriteLong(this Stream stream, long value)
+        {
+            var bytes = BitConverter.GetBytes(value);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(bytes);
+            stream.Write(bytes);
+        }
     }
 }

@@ -6,6 +6,7 @@ namespace BungeeCore.Service
     public interface IService
     {
         public Type PacketTypes { get; }
-        public IEnumerable<bool> Handler(object obj);
+        public object Parameter { set; }
+        public IEnumerable<bool> Handler();
     }
 }
