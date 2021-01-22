@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using BungeeCore.Common.Attributes;
 using BungeeCore.Common.Helper.Protocol;
 using BungeeCore.Common.Sockets;
 using Microsoft.Extensions.Logging;
@@ -40,6 +39,13 @@ namespace BungeeCore.Service
 
         private void ClientCore_OnTunnelReceive(byte[] Packet)
         {
+            List<ProtocolHeand> protocolHeands = AnalysisService.AnalysisHeand(Packet);
+            foreach (var protocolHeand in protocolHeands)
+            {
+                Type type = HandlerServcie.IHandler(protocolHeand.PacketId, infoService.Rose);
+                IService service = (IService)LifetimeScope.Resolve(type);
+                service.Parameter = AnalysisService.MapToEntities(service.PacketTypes, protocolHeand.PacketData);
+            }
             ServerCore.SendPacket(Packet);
         }
         private void ServerCore_OnServerReceive(byte[] Packet)
@@ -47,7 +53,7 @@ namespace BungeeCore.Service
             bool flag = true;
             try
             {
-                List<ProtocolHeand> protocolHeands = AnalysisService.AnalysisHeand(false, Packet);
+                List<ProtocolHeand> protocolHeands = AnalysisService.AnalysisHeand(Packet);
                 foreach (var protocolHeand in protocolHeands)
                 {
                     Type type = HandlerServcie.IHandler(protocolHeand.PacketId, infoService.Rose);
@@ -94,40 +100,5 @@ namespace BungeeCore.Service
             ServerCore.OnServerReceive -= ServerCore_OnServerReceive;
             ClientCore.OnTunnelReceive -= ClientCore_OnTunnelReceive;
         }
-        /*
-public void Login(string ServerAddress, ushort ServerPort)
-{
-   MemoryStream memoryStream1 = new MemoryStream();
-   Handshake handshake = new Handshake();
-   memoryStream1.WriteInt(0);
-   memoryStream1.WriteInt(Handshake.PacketId);
-   memoryStream1.WriteInt(ProtocolVersion);
-   memoryStream1.WriteString(ServerAddress, true);
-   memoryStream1.WriteUShort(ServerPort);
-   memoryStream1.WriteInt((int)NextState.login);
-   byte[] buffer = new byte[memoryStream1.Position];
-   int size1 = (int)memoryStream1.Position - 1;
-   memoryStream1.Position = 0;
-   memoryStream1.WriteInt(size1);
-   Array.Copy(memoryStream1.GetBuffer(), 0, buffer, 0, buffer.Length);
-
-   ClientCore.SendPacket(buffer);
-
-
-   MemoryStream memoryStream = new MemoryStream();
-   Login login = new Login();
-   login.Name = PlayerName;
-   memoryStream.WriteInt(0);
-   memoryStream.WriteInt(login.PacketId);
-   memoryStream.WriteString(PlayerName, true);
-   byte[] buffer2 = new byte[memoryStream.Position];
-   int size = (int)memoryStream.Position - 1;
-   memoryStream.Position = 0;
-   memoryStream.WriteInt(size);
-   Array.Copy(memoryStream.GetBuffer(), 0, buffer2, 0, buffer2.Length);
-
-   ClientCore.SendPacket(buffer2);
-}
-*/
     }
 }

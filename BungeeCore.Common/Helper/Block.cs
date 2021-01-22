@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BungeeCore.Common.Helper
 {
@@ -166,6 +163,11 @@ namespace BungeeCore.Common.Helper
             } while ((read & 0b10000000) != 0);
 
             return result;
+        }
+        public byte[] readBytes()
+        {
+            int length = readVarInt();
+            return readPacket(length);
         }
         public byte[] readPacket()
         {

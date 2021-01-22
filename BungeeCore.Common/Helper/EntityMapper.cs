@@ -64,6 +64,10 @@ namespace BungeeCore.Common.Helper
                             // block.readLong();
                             il.Emit(OpCodes.Callvirt, typeof(Block).GetMethod("readLong"));
                             break;
+                        case "Byte[]":
+                            // block.readBytes();
+                            il.Emit(OpCodes.Callvirt, typeof(Block).GetMethod("readBytes"));
+                            break;
                         default:
                             il.Emit(OpCodes.Pop);
                             il.Emit(OpCodes.Ret);

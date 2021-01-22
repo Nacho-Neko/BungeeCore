@@ -9,6 +9,7 @@ namespace BungeeCore.Service
     public class AnalysisService
     {
         private readonly ILogger Logger;
+        private bool Compression = false;
         public AnalysisService(ILogger<AnalysisService> Logger)
         {
             this.Logger = Logger;
@@ -18,7 +19,7 @@ namespace BungeeCore.Service
             Block block = new Block(PacketData);
             return EntityMapper.MapToEntities(type, block);
         }
-        public List<ProtocolHeand> AnalysisHeand(bool Compression, byte[] Packet)
+        public List<ProtocolHeand> AnalysisHeand(byte[] Packet)
         {
             Block block = new Block(Packet);
             List<ProtocolHeand> protocolHeands = new List<ProtocolHeand>();

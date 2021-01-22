@@ -111,7 +111,7 @@ namespace BungeeCore.Common.Sockets
                 Stop();
             }
         }
-        private void Stop()
+        public void Stop()
         {
             OnClose?.Invoke();
             Socket.Close();
