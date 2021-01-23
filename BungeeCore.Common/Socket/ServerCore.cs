@@ -113,16 +113,16 @@ namespace BungeeCore.Common.Sockets
         }
         public void Stop()
         {
+            ReceiveBuffer = null;
+            ReceiveEventArgs = null;
+            Socket.Shutdown(SocketShutdown.Both);
             OnClose?.Invoke();
             Socket.Close();
-            Socket.Dispose();
-            Dispose();
         }
 
         public void Dispose()
         {
-            ReceiveBuffer = null;
-            ReceiveEventArgs = null;
+
         }
     }
 }

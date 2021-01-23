@@ -69,9 +69,9 @@ namespace MinecraftTunnel.Core
             {
                 var assemblysServices = Assembly.Load("BungeeCore.Service");
                 ContainerBuilder.RegisterAssemblyTypes(assemblysServices).SingleInstance().OwnedByLifetimeScope();
-                ContainerBuilder.RegisterType<ClientCore>().SingleInstance().OwnedByLifetimeScope();
-                ContainerBuilder.RegisterType<ServerCore>().SingleInstance().OwnedByLifetimeScope();
-                ContainerBuilder.RegisterType<PlayerService>().SingleInstance().OwnedByLifetimeScope();
+                ContainerBuilder.RegisterType<ClientCore>().InstancePerLifetimeScope().OwnedByLifetimeScope();
+                ContainerBuilder.RegisterType<ServerCore>().InstancePerLifetimeScope().OwnedByLifetimeScope();
+                ContainerBuilder.RegisterType<PlayerService>().InstancePerLifetimeScope().OwnedByLifetimeScope();
             });
             PlayerService playerToken = lifetimeScope.Resolve<PlayerService>();
             playerToken.ServerCore.Accpet(e.AcceptSocket);

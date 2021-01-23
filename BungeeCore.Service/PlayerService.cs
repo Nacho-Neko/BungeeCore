@@ -11,8 +11,10 @@ namespace BungeeCore.Service
     {
         public readonly ILogger Logger;
         private readonly InfoService infoService;
+
         public readonly ServerCore ServerCore;
         public readonly ClientCore ClientCore;
+
         private readonly HandlerServcie HandlerServcie;
         private readonly AnalysisService AnalysisService;
 
@@ -91,14 +93,16 @@ namespace BungeeCore.Service
         }
         private void OnClose()
         {
-            Dispose();
-        }
-        public void Dispose()
-        {
-            ServerCore.OnClose -= OnClose;
-            ClientCore.OnClose -= OnClose;
             ServerCore.OnServerReceive -= ServerCore_OnServerReceive;
             ClientCore.OnTunnelReceive -= ClientCore_OnTunnelReceive;
+            ServerCore.OnClose -= OnClose;
+            ClientCore.OnClose -= OnClose;
+            LifetimeScope.Dispose();
+        }
+
+        public void Dispose()
+        {
+
         }
     }
 }
