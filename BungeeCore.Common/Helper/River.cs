@@ -27,7 +27,10 @@ namespace BungeeCore.Common.Helper
                 byte b = (byte)(value & 0x7F);
                 value >>= 7;
                 if (value != 0)
+                {
                     b = (byte)(b | 0x80);
+                }
+
                 stream.WriteByte(b);
             } while (value != 0);
         }
@@ -46,20 +49,28 @@ namespace BungeeCore.Common.Helper
             byte[] arrayOfByte = Encoding.UTF8.GetBytes(data);
             int Length = arrayOfByte.Length;
             if (longString)
+            {
                 WriteInt(Length);
+            }
+
             stream.Write(arrayOfByte, 0, arrayOfByte.Length);
         }
         public void WriteLong(long value)
         {
-            var bytes = BitConverter.GetBytes(value);
+            byte[] bytes = BitConverter.GetBytes(value);
             if (BitConverter.IsLittleEndian)
+            {
                 Array.Reverse(bytes);
+            }
+
             stream.Write(bytes);
         }
         public void Dispose()
         {
             if (stream != null)
+            {
                 stream.Dispose();
+            }
         }
     }
 }

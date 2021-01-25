@@ -104,7 +104,9 @@ namespace BungeeCore.Common.Sockets
                 }
                 bool willRaiseEvent = Socket.ReceiveAsync(ReceiveEventArgs);
                 if (!willRaiseEvent)
+                {
                     ProcessReceive(ReceiveEventArgs);
+                }
             }
             else
             {

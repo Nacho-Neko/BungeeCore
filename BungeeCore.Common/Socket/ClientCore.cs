@@ -6,7 +6,7 @@ using System.Net.Sockets;
 
 namespace BungeeCore.Common.Sockets
 {
-    public class ClientCore  : IDisposable
+    public class ClientCore : IDisposable
     {
         private readonly ILogger Logger;                               // 日志
         private readonly IConfiguration Configuration;                 // 配置文件
@@ -34,8 +34,7 @@ namespace BungeeCore.Common.Sockets
         }
         public void Start()
         {
-            IPAddress ipaddr;
-            if (!IPAddress.TryParse(Configuration["Nat:IP"], out ipaddr))
+            if (!IPAddress.TryParse(Configuration["Nat:IP"], out IPAddress ipaddr))
             {
                 IPAddress[] iplist = Dns.GetHostAddresses(Configuration["Nat:IP"]);
                 if (iplist != null && iplist.Length > 0)
@@ -85,7 +84,9 @@ namespace BungeeCore.Common.Sockets
                 }
                 bool willRaiseEvent = Socket.ReceiveAsync(ReceiveEventArgs);
                 if (!willRaiseEvent)
+                {
                     ProcessReceive(ReceiveEventArgs);
+                }
             }
             else
             {

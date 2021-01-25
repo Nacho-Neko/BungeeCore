@@ -9,7 +9,7 @@ namespace BungeeCore.Service
     public class AnalysisService
     {
         private readonly ILogger Logger;
-        private bool Compression = false;
+        private readonly bool Compression = false;
         public AnalysisService(ILogger<AnalysisService> Logger)
         {
             this.Logger = Logger;

@@ -8,7 +8,7 @@ namespace BungeeCore.Common.Helper
     public class EntityMapper
     {
         private delegate object mapEntity(Block block);
-        private static Dictionary<Type, Delegate> cachedMappers = new Dictionary<Type, Delegate>();
+        private static readonly Dictionary<Type, Delegate> cachedMappers = new Dictionary<Type, Delegate>();
         public static object MapToEntities(Type type, Block block)
         {
             if (!cachedMappers.ContainsKey(type))

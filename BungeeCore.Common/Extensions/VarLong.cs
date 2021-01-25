@@ -9,7 +9,7 @@ namespace BungeeCore.Common.Extensions
         public readonly long value;
         public VarLong(long m_value)
         {
-            this.value = m_value;
+            value = m_value;
         }
         public static bool operator !=(VarLong left, long right)
         {

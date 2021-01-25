@@ -26,11 +26,11 @@ namespace BungeeCore
                  .ConfigureServices((hostContext, services) =>
                  {
                      services.AddHostedService<ServerListen>();
-                 
+
                  })
                  .ConfigureAppConfiguration((hostContext, configApp) =>
                  {
-                     var path = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.yaml");
+                     string path = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.yaml");
                      configApp.AddYamlFile(path, optional: true);
                      configApp.AddCommandLine(args);
                  })

@@ -30,7 +30,10 @@ namespace BungeeCore.Common.Extensions.Conver
             byte[] arrayOfByte = Encoding.UTF8.GetBytes(value);
             int Length = arrayOfByte.Length;
             if (longString)
+            {
                 WriteInt(stream, Length);
+            }
+
             stream.Write(arrayOfByte, 0, arrayOfByte.Length);
         }
         public static void WriteInt(this Stream stream, int value)
@@ -40,7 +43,10 @@ namespace BungeeCore.Common.Extensions.Conver
                 byte b = (byte)(value & 0x7F);
                 value >>= 7;
                 if (value != 0)
+                {
                     b = (byte)(b | 0x80);
+                }
+
                 stream.WriteByte(b);
             } while (value != 0);
         }
@@ -51,9 +57,12 @@ namespace BungeeCore.Common.Extensions.Conver
         }
         public static void WriteLong(this Stream stream, long value)
         {
-            var bytes = BitConverter.GetBytes(value);
+            byte[] bytes = BitConverter.GetBytes(value);
             if (BitConverter.IsLittleEndian)
+            {
                 Array.Reverse(bytes);
+            }
+
             stream.Write(bytes);
         }
     }

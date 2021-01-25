@@ -6,7 +6,7 @@ namespace BungeeCore.Common.Extensions
     {
         public VarInt(int m_value)
         {
-            this.value = m_value;
+            value = m_value;
         }
         public static bool operator !=(VarInt left, int right)
         {

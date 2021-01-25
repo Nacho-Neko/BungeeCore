@@ -11,9 +11,9 @@ namespace BungeeCore.Model
         public Chat() { }
         public Chat(Extra extra)
         {
-            this.text = extra.text;
-            this.color = extra.color;
-            this.bold = extra.bold;
+            text = extra.text;
+            color = extra.color;
+            bold = extra.bold;
         }
         public Chat(Extra extra, List<Extra> extras) : this(extra)
         {
