@@ -9,8 +9,8 @@ namespace BungeeCore.Service
     public class HandlerServcie
     {
         private readonly ILogger Logger;
-        private static Dictionary<int, Type> AnonymouseHandler = new Dictionary<int, Type>();
-        private static Dictionary<int, Type> PlayerHandler = new Dictionary<int, Type>();
+        private static readonly Dictionary<int, Type> AnonymouseHandler = new Dictionary<int, Type>();
+        private static readonly Dictionary<int, Type> PlayerHandler = new Dictionary<int, Type>();
 
         public HandlerServcie(ILogger<HandlerServcie> Logger)
         {
@@ -20,7 +20,7 @@ namespace BungeeCore.Service
 
             Assembly assembly = Assembly.Load("BungeeCore.Service");
             Type[] types = assembly.GetExportedTypes();
-            foreach (var type in types)
+            foreach (Type type in types)
             {
                 Attribute[] attributes = Attribute.GetCustomAttributes(type, true);
                 foreach (Attribute attribute in attributes)
@@ -43,15 +43,21 @@ namespace BungeeCore.Service
         public Type IHandler(int PacketId, Rose rose)
         {
             if (rose == Rose.Anonymouse)
+            {
                 if (AnonymouseHandler.TryGetValue(PacketId, out Type type))
                 {
                     return type;
                 }
+            }
+
             if (rose == Rose.Player)
+            {
                 if (PlayerHandler.TryGetValue(PacketId, out Type type))
                 {
                     return type;
                 }
+            }
+
             return null;
         }
     }

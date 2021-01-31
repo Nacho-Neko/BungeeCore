@@ -22,7 +22,7 @@ namespace BungeeCore.Service
 
         private readonly Dictionary<int, IEnumerator<bool>> keyValues = new Dictionary<int, IEnumerator<bool>>();
 
-        private ILifetimeScope LifetimeScope;
+        private readonly ILifetimeScope LifetimeScope;
 
 
         public PlayerService(ILogger<PlayerService> Logger, InfoService infoService, ServerCore ServerCore, ClientCore ClientCore,
@@ -53,7 +53,7 @@ namespace BungeeCore.Service
         private void ClientCore_OnTunnelReceive(byte[] Packet)
         {
             List<ProtocolHeand> protocolHeands = AnalysisService.AnalysisHeand(Packet);
-            foreach (var protocolHeand in protocolHeands)
+            foreach (ProtocolHeand protocolHeand in protocolHeands)
             {
                 Type type = HandlerServcie.IHandler(protocolHeand.PacketId, infoService.Rose);
                 IService service = (IService)LifetimeScope.Resolve(type);
@@ -67,7 +67,7 @@ namespace BungeeCore.Service
             try
             {
                 List<ProtocolHeand> protocolHeands = AnalysisService.AnalysisHeand(Packet);
-                foreach (var protocolHeand in protocolHeands)
+                foreach (ProtocolHeand protocolHeand in protocolHeands)
                 {
                     Type type = HandlerServcie.IHandler(protocolHeand.PacketId, infoService.Rose);
                     if (type != null)
@@ -77,9 +77,13 @@ namespace BungeeCore.Service
                         if (keyValues.TryGetValue(protocolHeand.PacketId, out IEnumerator<bool> value))
                         {
                             if (value.MoveNext())
+                            {
                                 flag = value.Current;
+                            }
                             else
+                            {
                                 keyValues.Remove(protocolHeand.PacketId);
+                            }
                         }
                         else
                         {

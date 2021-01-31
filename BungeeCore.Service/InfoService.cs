@@ -17,7 +17,7 @@ namespace BungeeCore.Service
         public void Info(string PlayerName)
         {
             this.PlayerName = PlayerName;
-            this.Rose = Rose.Player;
+            Rose = Rose.Player;
             ConnectDateTime = DateTime.Now;
         }
     }

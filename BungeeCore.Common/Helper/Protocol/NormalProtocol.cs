@@ -10,12 +10,14 @@
         public override void Analyze(Block block)
         {
             this.block = block;
-            this.PacketSize = block.readVarInt();
+            PacketSize = block.readVarInt();
             byte[] PacketData = block.readPacket(PacketSize);
             Block b = new Block(PacketData);
-            this.PacketId = b.readVarInt();
+            PacketId = b.readVarInt();
             if (PacketSize > 0)
+            {
                 this.PacketData = b.readPacket();
+            }
         }
     }
 }

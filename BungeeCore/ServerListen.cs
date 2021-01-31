@@ -67,7 +67,7 @@ namespace BungeeCore
         {
             ILifetimeScope lifetimeScope = LifetimeScope.BeginLifetimeScope(ContainerBuilder =>
             {
-                var assemblysServices = Assembly.Load("BungeeCore.Service");
+                Assembly assemblysServices = Assembly.Load("BungeeCore.Service");
                 ContainerBuilder.RegisterAssemblyTypes(assemblysServices).SingleInstance().OwnedByLifetimeScope();
                 ContainerBuilder.RegisterType<ClientCore>().InstancePerLifetimeScope().OwnedByLifetimeScope();
                 ContainerBuilder.RegisterType<ServerCore>().InstancePerLifetimeScope().OwnedByLifetimeScope();

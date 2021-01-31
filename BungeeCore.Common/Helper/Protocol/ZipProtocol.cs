@@ -17,12 +17,12 @@ namespace BungeeCore.Common.Helper.Protocol
         public override void Analyze(Block block)
         {
             this.block = block;
-            this.PacketSize = block.readVarInt();
-            this.DataLength = block.readVarInt();
+            PacketSize = block.readVarInt();
+            DataLength = block.readVarInt();
             if (DataLength == 0)
             {
-                this.PacketId = block.readVarInt();
-                this.PacketData = block.readPacket(PacketSize);
+                PacketId = block.readVarInt();
+                PacketData = block.readPacket(PacketSize);
                 return;
             }
             using MemoryStream memoryStream = new MemoryStream();

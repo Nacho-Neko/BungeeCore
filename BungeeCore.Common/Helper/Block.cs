@@ -20,109 +20,136 @@ namespace BungeeCore.Common.Helper
         public bool readBoolean()
         {
             if (step >= buffer.Length)
+            {
                 return false;
+            }
+
             if (BitConverter.IsLittleEndian)
             {
                 Array.Reverse(buffer, step, 1);
             }
-            var temp = BitConverter.ToBoolean(buffer, step);
+            bool temp = BitConverter.ToBoolean(buffer, step);
             step++;
             return temp;
         }
         public sbyte readSByte()
         {
             if (step >= buffer.Length)
+            {
                 return 0;
+            }
+
             return (sbyte)buffer[step++];
         }
         public byte readByte()
         {
             if (step >= buffer.Length)
+            {
                 return 0;
+            }
+
             return buffer[step++];
         }
         public short readShort()
         {
             if (step >= buffer.Length)
+            {
                 return 0;
+            }
+
             if (BitConverter.IsLittleEndian)
             {
                 Array.Reverse(buffer, step, 2);
             }
-            var temp = BitConverter.ToInt16(buffer, step);
+            short temp = BitConverter.ToInt16(buffer, step);
             step += 2;
             return temp;
         }
         public ushort readUnsignedShort()
         {
             if (step >= buffer.Length)
+            {
                 return 0;
+            }
+
             if (BitConverter.IsLittleEndian)
             {
                 Array.Reverse(buffer, step, 2);
             }
-            var temp = BitConverter.ToUInt16(buffer, step);
+            ushort temp = BitConverter.ToUInt16(buffer, step);
             step += 2;
             return temp;
         }
         public int readInt()
         {
             if (step >= buffer.Length)
+            {
                 return 0;
+            }
+
             if (BitConverter.IsLittleEndian)
             {
                 Array.Reverse(buffer, step, 4);
             }
-            var temp = BitConverter.ToInt32(buffer, step);
+            int temp = BitConverter.ToInt32(buffer, step);
             step += 4;
             return temp;
         }
         public long readLong()
         {
             if (step >= buffer.Length)
+            {
                 return 0;
+            }
+
             if (BitConverter.IsLittleEndian)
             {
                 Array.Reverse(buffer, step, 8);
             }
-            var temp = BitConverter.ToInt64(buffer, step);
+            long temp = BitConverter.ToInt64(buffer, step);
             step += 8;
             return temp;
         }
         public float readFloat()
         {
             if (step >= buffer.Length)
+            {
                 return 0;
+            }
+
             if (BitConverter.IsLittleEndian)
             {
                 Array.Reverse(buffer, step, 4);
             }
-            var temp = BitConverter.ToSingle(buffer, step);
+            float temp = BitConverter.ToSingle(buffer, step);
             step += 4;
             return temp;
         }
         public double readDouble()
         {
             if (step >= buffer.Length)
+            {
                 return 0;
+            }
+
             if (BitConverter.IsLittleEndian)
             {
                 Array.Reverse(buffer, step, 8);
             }
-            var temp = BitConverter.ToDouble(buffer, step);
+            double temp = BitConverter.ToDouble(buffer, step);
             step += 8;
             return temp;
         }
         public string readString()
         {
             int jsonLength = readVarInt();
-            var str = Encoding.UTF8.GetString(buffer, step, jsonLength);
+            string str = Encoding.UTF8.GetString(buffer, step, jsonLength);
             step += jsonLength;
             return str;
         }
         public string readString(int Length)
         {
-            var str = Encoding.UTF8.GetString(buffer, step, Length);
+            string str = Encoding.UTF8.GetString(buffer, step, Length);
             step += Length;
             return str;
         }
