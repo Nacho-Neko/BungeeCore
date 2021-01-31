@@ -65,14 +65,7 @@ namespace BungeeCore
         /// <param name="acceptEventArg"></param>
         private void ProcessAccept(SocketAsyncEventArgs e)
         {
-            ILifetimeScope lifetimeScope = LifetimeScope.BeginLifetimeScope(ContainerBuilder =>
-            {
-                Assembly assemblysServices = Assembly.Load("BungeeCore.Service");
-                ContainerBuilder.RegisterAssemblyTypes(assemblysServices).SingleInstance().OwnedByLifetimeScope();
-                ContainerBuilder.RegisterType<ClientCore>().InstancePerLifetimeScope().OwnedByLifetimeScope();
-                ContainerBuilder.RegisterType<ServerCore>().InstancePerLifetimeScope().OwnedByLifetimeScope();
-                ContainerBuilder.RegisterType<PlayerService>().InstancePerLifetimeScope().OwnedByLifetimeScope();
-            });
+            ILifetimeScope lifetimeScope = LifetimeScope.BeginLifetimeScope();
             PlayerService playerToken = lifetimeScope.Resolve<PlayerService>();
             playerToken.ServerCore.Accpet(e.AcceptSocket);
             if (playerToken is IDisposable disposable)

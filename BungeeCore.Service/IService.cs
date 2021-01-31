@@ -7,6 +7,8 @@ namespace BungeeCore.Service
     {
         public Type PacketTypes { get; }
         public object Parameter { set; }
-        public IEnumerable<bool> Handler();
+        public IEnumerable<bool> Prerouting();
+        public IEnumerable<bool> Postrouting();
+
     }
 }

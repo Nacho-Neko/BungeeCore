@@ -8,10 +8,10 @@ using System.Security.Cryptography;
 namespace BungeeCore.Service
 {
     [PacketHandler(PakcetId = 1, Rose = Rose.Player)]
-    public class EncryptionService : IService
+    public class EncryptionService : BaseService
     {
-        public Type PacketTypes { get; private set; } = typeof(EncryptionRequest);
-        public object Parameter { private get; set; }
+        public override Type PacketTypes { get; protected set; } = typeof(EncryptionRequest);
+        public override object Parameter { protected get; set; }
 
         private readonly ILogger Logger;
         private ICryptoTransform EncryptorTransform;
@@ -20,7 +20,12 @@ namespace BungeeCore.Service
         {
             this.Logger = Logger;
         }
-        public IEnumerable<bool> Handler()
+        public override IEnumerable<bool> Prerouting()
+        {
+            EncryptionRequest encryptionRequest = (EncryptionRequest)Parameter;
+            yield return true;
+        }
+        public override IEnumerable<bool> Postrouting()
         {
             EncryptionRequest encryptionRequest = (EncryptionRequest)Parameter;
             yield return true;

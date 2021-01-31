@@ -10,18 +10,18 @@ using System.IO;
 namespace BungeeCore.Service
 {
     [PacketHandler(PakcetId = 1, Rose = Rose.Anonymouse)]
-    public class PingService : IService
+    public class PingService : BaseService
     {
         private readonly ILogger Logger;
         private readonly ServerCore ServerCore;
-        public Type PacketTypes { get; private set; } = typeof(Ping);
-        public object Parameter { set; private get; }
+        public override Type PacketTypes { get; protected set; } = typeof(Ping);
+        public override object Parameter { set; protected get; }
         public PingService(ILogger<LoginService> Logger, ServerCore ServerCore)
         {
             this.Logger = Logger;
             this.ServerCore = ServerCore;
         }
-        public IEnumerable<bool> Handler()
+        public override IEnumerable<bool> Prerouting()
         {
             Ping ping = (Ping)Parameter;
             using (MemoryStream memoryStream = new MemoryStream())

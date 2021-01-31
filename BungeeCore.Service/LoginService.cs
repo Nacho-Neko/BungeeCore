@@ -14,7 +14,7 @@ using static BungeeCore.Model.ClientBound.Response;
 namespace BungeeCore.Service
 {
     [PacketHandler(PakcetId = 0, Rose = Rose.Anonymouse)]
-    public class LoginService : IService
+    public class LoginService : BaseService
     {
         private readonly ILogger Logger;
         private readonly InfoService infoService;
@@ -26,8 +26,8 @@ namespace BungeeCore.Service
         private Handshake handshake;
         private Login login;
         private bool IsForge;
-        public Type PacketTypes { get; private set; } = typeof(Handshake);
-        public object Parameter { set; private get; }
+        public override Type PacketTypes { get; protected set; } = typeof(Handshake);
+        public override object Parameter { set; protected get; }
         public LoginService(ILogger<LoginService> Logger, InfoService infoService, ServerCore ServerCore, ClientCore ClientCore, TunnelServcie TunnelServcie, HandlerServcie HandlerServcie)
         {
             this.Logger = Logger;
@@ -37,7 +37,7 @@ namespace BungeeCore.Service
             this.TunnelServcie = TunnelServcie;
             this.HandlerServcie = HandlerServcie;
         }
-        public IEnumerable<bool> Handler()
+        public override IEnumerable<bool> Prerouting()
         {
             handshake = (Handshake)Parameter;
             if (handshake.NextState() == NextState.Status)
@@ -74,7 +74,6 @@ namespace BungeeCore.Service
             // 开始登录
             yield return false;
         }
-
         public void Login()
         {
             using (MemoryStream memory = new MemoryStream())

@@ -87,7 +87,7 @@ namespace BungeeCore.Service
                         }
                         else
                         {
-                            IEnumerator<bool> enumerator = service.Handler().GetEnumerator();
+                            IEnumerator<bool> enumerator = service.Prerouting().GetEnumerator();
                             if (enumerator.MoveNext())
                             {
                                 flag = enumerator.Current;
