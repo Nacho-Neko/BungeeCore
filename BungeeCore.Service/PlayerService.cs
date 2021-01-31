@@ -18,12 +18,16 @@ namespace BungeeCore.Service
         private readonly HandlerServcie HandlerServcie;
         private readonly AnalysisService AnalysisService;
 
+        private readonly TunnelServcie tunnelServcie;
+
         private readonly Dictionary<int, IEnumerator<bool>> keyValues = new Dictionary<int, IEnumerator<bool>>();
 
         private ILifetimeScope LifetimeScope;
 
 
-        public PlayerService(ILogger<PlayerService> Logger, InfoService infoService, ServerCore ServerCore, ClientCore ClientCore, HandlerServcie HandlerServcie, AnalysisService AnalysisService, ILifetimeScope LifetimeScope)
+        public PlayerService(ILogger<PlayerService> Logger, InfoService infoService, ServerCore ServerCore, ClientCore ClientCore,
+            HandlerServcie HandlerServcie, AnalysisService AnalysisService, TunnelServcie tunnelServcie,
+            ILifetimeScope LifetimeScope)
         {
             this.Logger = Logger;
             this.infoService = infoService;
@@ -31,12 +35,19 @@ namespace BungeeCore.Service
             this.ClientCore = ClientCore;
             this.HandlerServcie = HandlerServcie;
             this.AnalysisService = AnalysisService;
+            this.tunnelServcie = tunnelServcie;
             this.LifetimeScope = LifetimeScope;
 
-            ServerCore.OnClose += OnClose;
-            ClientCore.OnClose += OnClose;
+            ServerCore.OnServerClose += OnClose;
+            ClientCore.OnTunnelClose += OnClose;
             ServerCore.OnServerReceive += ServerCore_OnServerReceive;
             ClientCore.OnTunnelReceive += ClientCore_OnTunnelReceive;
+            ClientCore.OnTunnelConnect += ClientCore_OnTunnelConnect;
+        }
+
+        private void ClientCore_OnTunnelConnect()
+        {
+            tunnelServcie.Next();
         }
 
         private void ClientCore_OnTunnelReceive(byte[] Packet)
@@ -95,8 +106,8 @@ namespace BungeeCore.Service
         {
             ServerCore.OnServerReceive -= ServerCore_OnServerReceive;
             ClientCore.OnTunnelReceive -= ClientCore_OnTunnelReceive;
-            ServerCore.OnClose -= OnClose;
-            ClientCore.OnClose -= OnClose;
+            ServerCore.OnServerClose -= OnClose;
+            ClientCore.OnTunnelClose -= OnClose;
             LifetimeScope.Dispose();
         }
 

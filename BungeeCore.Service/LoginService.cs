@@ -19,6 +19,7 @@ namespace BungeeCore.Service
         private readonly ILogger Logger;
         private readonly InfoService infoService;
         private readonly ServerCore ServerCore;
+        private readonly ClientCore ClientCore;
         private readonly TunnelServcie TunnelServcie;
         private readonly HandlerServcie HandlerServcie;
 
@@ -27,11 +28,12 @@ namespace BungeeCore.Service
         private bool IsForge;
         public Type PacketTypes { get; private set; } = typeof(Handshake);
         public object Parameter { set; private get; }
-        public LoginService(ILogger<LoginService> Logger, InfoService infoService, ServerCore ServerCore, TunnelServcie TunnelServcie, HandlerServcie HandlerServcie)
+        public LoginService(ILogger<LoginService> Logger, InfoService infoService, ServerCore ServerCore, ClientCore ClientCore, TunnelServcie TunnelServcie, HandlerServcie HandlerServcie)
         {
             this.Logger = Logger;
             this.infoService = infoService;
             this.ServerCore = ServerCore;
+            this.ClientCore = ClientCore;
             this.TunnelServcie = TunnelServcie;
             this.HandlerServcie = HandlerServcie;
         }
@@ -66,16 +68,41 @@ namespace BungeeCore.Service
             yield return false;
             login = (Login)Parameter;
             Logger.LogInformation($"PlayerLogin : {login.Name} {DateTime.Now.ToString()}");
-
-            TunnelServcie.Parameter = handshake;
-            IEnumerator<bool> enumerator = TunnelServcie.Handler().GetEnumerator();
-            while (enumerator.MoveNext())
-            {
-                TunnelServcie.Parameter = login;
-            }
+            TunnelServcie.Actions.Push(Login);
+            ClientCore.Start();
             infoService.Info(login.Name);
             // 开始登录
             yield return false;
+        }
+
+        public void Login()
+        {
+            using (MemoryStream memory = new MemoryStream())
+            {
+                using (MemoryStream packet = new MemoryStream())
+                {
+                    packet.WriteInt(0);
+                    packet.WriteInt(handshake.ProtocolVersion);
+                    packet.WriteString("mc.hypixel.net", true);
+                    packet.WriteUShort(25565);
+                    packet.WriteInt((int)NextState.Login);
+                    memory.WriteInt((int)packet.Position);
+                    packet.WriteTo(memory);
+                }
+                ClientCore.SendPacket(memory.ToArray());
+            }
+            using (MemoryStream memory = new MemoryStream())
+            {
+                using (MemoryStream packet = new MemoryStream())
+                {
+                    packet.WriteInt(0);
+                    packet.WriteString(login.Name, true);
+
+                    memory.WriteInt((int)packet.Position);
+                    packet.WriteTo(memory);
+                }
+                ClientCore.SendPacket(memory.ToArray());
+            }
         }
     }
 }

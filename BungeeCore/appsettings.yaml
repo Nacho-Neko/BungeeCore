@@ -15,8 +15,8 @@ Server:
 
 #转发的目标
 Nat:
-   IP: 35.221.125.42
-   Port : 25565
+   IP: 42.157.160.101
+   Port : 53180
 
 #Query
 Query:

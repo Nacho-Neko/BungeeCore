@@ -9,8 +9,8 @@ namespace BungeeCore.Common.Sockets
     {
         public delegate void ServerReceive(byte[] Packet);
         public event ServerReceive OnServerReceive;
-        public delegate void Close();
-        public event Close OnClose;
+        public delegate void ServerClose();
+        public event ServerClose OnServerClose;
 
         private readonly ILogger ILogger;                               // 日志
         private readonly IConfiguration IConfiguration;                 // 配置文件
@@ -116,7 +116,7 @@ namespace BungeeCore.Common.Sockets
             ReceiveBuffer = null;
             ReceiveEventArgs = null;
             Socket.Shutdown(SocketShutdown.Both);
-            OnClose?.Invoke();
+            OnServerClose?.Invoke();
             Socket.Close();
         }
 

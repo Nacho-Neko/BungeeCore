@@ -13,13 +13,14 @@ namespace BungeeCore.Common.Sockets
         private Socket Socket;                                         // Socket
         private SocketAsyncEventArgs ReceiveEventArgs;
         private byte[] ReceiveBuffer = new byte[2097151];
-
-        public bool Connect;
         #region 事件
         public delegate void TunnelReceive(byte[] Packet);
         public event TunnelReceive OnTunnelReceive;
-        public delegate void Close();
-        public event Close OnClose;
+        public delegate void TunnelClose();
+        public event TunnelClose OnTunnelClose;
+        public delegate void TunnelConnect();
+        public event TunnelConnect OnTunnelConnect;
+        
         #endregion
         public ClientCore(ILogger<ClientCore> Logger, IConfiguration Configuration)
         {
@@ -103,14 +104,14 @@ namespace BungeeCore.Common.Sockets
                 {
                     ProcessReceive(ReceiveEventArgs);
                 }
-                Connect = true;
+                OnTunnelConnect();
             }
         }
         private void Stop()
         {
             ReceiveBuffer = null;
             ReceiveEventArgs = null;
-            OnClose?.Invoke();
+            OnTunnelClose?.Invoke();
             Socket.Shutdown(SocketShutdown.Both);
             Socket.Close();
         }
