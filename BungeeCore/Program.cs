@@ -42,7 +42,6 @@ namespace BungeeCore
                  })
                  .UseConsoleLifetime()
                  .UseServiceProviderFactory(new AutofacServiceProviderFactory(ApplicationContainer));
-
         private static void ApplicationContainer(ContainerBuilder containerBuilder)
         {
             containerBuilder.RegisterType<HandlerServcie>().SingleInstance();

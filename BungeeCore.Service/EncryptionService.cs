@@ -1,5 +1,6 @@
 ﻿using BungeeCore.Common.Attributes;
 using BungeeCore.Model.ClientBound;
+using BungeeCore.Model.ServerBound;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -12,32 +13,59 @@ namespace BungeeCore.Service
     {
         public override Type PacketTypes { get; protected set; } = typeof(EncryptionRequest);
         public override object Parameter { protected get; set; }
-
         private readonly ILogger Logger;
+        private readonly InfoService infoService;
+
         private ICryptoTransform EncryptorTransform;
         private ICryptoTransform DecryptorTransform;
-        public EncryptionService(ILogger<EncryptionService> Logger)
+
+        private EncryptionResponse encryptionResponse;
+        private EncryptionRequest encryptionRequest;
+
+        public EncryptionService(ILogger<EncryptionService> Logger, InfoService infoService)
         {
             this.Logger = Logger;
+            this.infoService = infoService;
         }
         public override IEnumerable<bool> Prerouting()
         {
-            EncryptionRequest encryptionRequest = (EncryptionRequest)Parameter;
+            encryptionResponse = (EncryptionResponse)Parameter;
+            SetEncryption(encryptionResponse.SharedSecret, encryptionResponse.VerifyToken);
             yield return true;
         }
         public override IEnumerable<bool> Postrouting()
         {
-            EncryptionRequest encryptionRequest = (EncryptionRequest)Parameter;
+            infoService.Encryption = true;
+            encryptionRequest = (EncryptionRequest)Parameter;
+            SetDecryption(encryptionRequest.PublicKey, encryptionRequest.VerifyToken);
             yield return true;
         }
-        public void SetEncryption(byte[] key, byte[] iv)
+        /// <summary>
+        /// 设置加密参数
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="iv"></param>
+        private void SetEncryption(byte[] key, byte[] iv)
         {
             RijndaelManaged RijndAes = new RijndaelManaged();
             RijndAes.Mode = CipherMode.CFB;
             RijndAes.BlockSize = 128;
             RijndAes.Key = key;
             RijndAes.IV = iv;
-            EncryptorTransform = RijndAes.CreateEncryptor();
+            DecryptorTransform = RijndAes.CreateDecryptor();
+        }
+        /// <summary>
+        /// 设置解密参数
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="iv"></param>
+        private void SetDecryption(byte[] key, byte[] iv)
+        {
+            RijndaelManaged RijndAes = new RijndaelManaged();
+            RijndAes.Mode = CipherMode.CFB;
+            RijndAes.BlockSize = 128;
+            RijndAes.Key = key;
+            RijndAes.IV = iv;
             DecryptorTransform = RijndAes.CreateDecryptor();
         }
         /// <summary>

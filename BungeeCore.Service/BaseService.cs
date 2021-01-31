@@ -24,5 +24,4 @@ namespace BungeeCore.Service
             yield return true;
         }
     }
-
 }

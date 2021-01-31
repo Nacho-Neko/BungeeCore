@@ -11,13 +11,11 @@ namespace BungeeCore.Common.Sockets
         public event ServerReceive OnServerReceive;
         public delegate void ServerClose();
         public event ServerClose OnServerClose;
-
         private readonly ILogger ILogger;                               // 日志
         private readonly IConfiguration IConfiguration;                 // 配置文件
         private byte[] ReceiveBuffer;
         private Socket Socket;
         private SocketAsyncEventArgs ReceiveEventArgs;
-
         public ServerCore(ILogger<ServerCore> ILogger, IConfiguration IConfiguration)
         {
             this.ILogger = ILogger;
@@ -121,7 +119,6 @@ namespace BungeeCore.Common.Sockets
             OnServerClose?.Invoke();
             Socket.Close();
         }
-
         public void Dispose()
         {
 

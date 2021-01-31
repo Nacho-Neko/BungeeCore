@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using BungeeCore.Common.Sockets;
 using BungeeCore.Service;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -7,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -67,7 +65,7 @@ namespace BungeeCore
         {
             ILifetimeScope lifetimeScope = LifetimeScope.BeginLifetimeScope();
             PlayerService playerToken = lifetimeScope.Resolve<PlayerService>();
-            playerToken.ServerCore.Accpet(e.AcceptSocket);
+            playerToken.serverCore.Accpet(e.AcceptSocket);
             if (playerToken is IDisposable disposable)
             {
                 lifetimeScope.Disposer.AddInstanceForDisposal(disposable);

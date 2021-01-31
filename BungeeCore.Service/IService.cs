@@ -9,6 +9,5 @@ namespace BungeeCore.Service
         public object Parameter { set; }
         public IEnumerable<bool> Prerouting();
         public IEnumerable<bool> Postrouting();
-
     }
 }

@@ -11,13 +11,10 @@ namespace BungeeCore.Service
         private readonly ILogger Logger;
         private static readonly Dictionary<int, Type> AnonymouseHandler = new Dictionary<int, Type>();
         private static readonly Dictionary<int, Type> PlayerHandler = new Dictionary<int, Type>();
-
         public HandlerServcie(ILogger<HandlerServcie> Logger)
         {
             this.Logger = Logger;
-
             ushort HandlerCount = 0;
-
             Assembly assembly = Assembly.Load("BungeeCore.Service");
             Type[] types = assembly.GetExportedTypes();
             foreach (Type type in types)
@@ -39,7 +36,6 @@ namespace BungeeCore.Service
             };
             Logger.LogInformation($"Handler Count : {HandlerCount}");
         }
-
         public Type IHandler(int PacketId, Rose rose)
         {
             if (rose == Rose.Anonymouse)
@@ -49,7 +45,6 @@ namespace BungeeCore.Service
                     return type;
                 }
             }
-
             if (rose == Rose.Player)
             {
                 if (PlayerHandler.TryGetValue(PacketId, out Type type))
@@ -57,7 +52,6 @@ namespace BungeeCore.Service
                     return type;
                 }
             }
-
             return null;
         }
     }
