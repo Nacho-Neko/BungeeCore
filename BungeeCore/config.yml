@@ -24,6 +24,7 @@ Nat:
 #Query
 Query:
   ServerAddress : mc.hypixel.net
+  ICON : "https://www.baidu.com/img/flexible/logo/pc/result.png"
   Motd : "§f§k--§e§l ooplay公益 §f§k--§f | §c✈高性价比IP §9§l✔购买地址:quicknat.cn \n §o§e§l☆ Hypixel交流群12345667 ☆ §f| §b§l"
 
 #Ping(Echo,Passthrough,Black)

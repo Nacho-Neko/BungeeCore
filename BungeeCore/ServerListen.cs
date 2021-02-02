@@ -66,10 +66,6 @@ namespace BungeeCore
             ILifetimeScope lifetimeScope = LifetimeScope.BeginLifetimeScope();
             ChannelService channelService = lifetimeScope.Resolve<ChannelService>();
             channelService.serverCore.Accpet(e.AcceptSocket);
-            if (channelService is IDisposable disposable)
-            {
-                lifetimeScope.Disposer.AddInstanceForDisposal(disposable);
-            }
             // 接受后面的连接请求
             StartAccept(e);
         }

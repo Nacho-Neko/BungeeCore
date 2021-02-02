@@ -25,7 +25,7 @@ namespace BungeeCore.Service
         private readonly ILifetimeScope lifetimeScope;
 
         private delegate Type IHannd(int PacketId);
-        private IHannd hannd;
+        private IHannd hannd = HandlerServcie.Guest;
 
         public ChannelService(ILogger<ChannelService> logger,
             ServerCore serverCore, ClientCore clientCore,
@@ -40,8 +40,6 @@ namespace BungeeCore.Service
             this.encryptionService = encryptionService;
             this.lifetimeScope = lifetimeScope;
 
-            IHannd hannd = HandlerServcie.Guest;
-
             serverCore.OnServerClose += OnClose;
             clientCore.OnTunnelClose += OnClose;
             serverCore.OnServerReceive += ServerCore_OnServerReceive;
@@ -55,13 +53,13 @@ namespace BungeeCore.Service
                 Packet = encryptionService.Encrypt(Packet);
             //先序列化 Entities
             //然后发出这个包
-            clientCore.SendPacket(Packet);
+            serverCore.SendPacket(Packet);
         }
         public void SendPacket(byte[] Packet)
         {
             if (encryptionService.Enable)
                 Packet = encryptionService.Encrypt(Packet);
-            clientCore.SendPacket(Packet);
+            serverCore.SendPacket(Packet);
         }
         public void Connect()
         {

@@ -47,7 +47,7 @@ namespace BungeeCore.Service
                 response.players.max = 100;
                 response.players.sample = new List<SampleItem>();
                 response.description.text = "新版本测试";
-                response.favicon = "";
+                response.favicon = "data:image/png;base64,<data>";
                 using (River temp = new River())
                 {
                     temp.WriteInt(0);
@@ -72,7 +72,7 @@ namespace BungeeCore.Service
 
             channelService.Connect();
             channelService.Actions.Push(Login);
-      
+
             playerService.PlayerName = login.Name;
             // 开始登录
             yield return false;
