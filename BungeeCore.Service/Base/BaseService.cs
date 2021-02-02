@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BungeeCore.Service
+namespace BungeeCore.Service.Base
 {
     public abstract class BaseService : IService
     {

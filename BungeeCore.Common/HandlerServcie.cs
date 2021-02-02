@@ -36,21 +36,19 @@ namespace BungeeCore.Service
             };
             Logger.LogInformation($"Handler Count : {HandlerCount}");
         }
-        public Type IHandler(int PacketId, Rose rose)
+        public static Type Guest(int PacketId)
         {
-            if (rose == Rose.Anonymouse)
+            if (AnonymouseHandler.TryGetValue(PacketId, out Type type))
             {
-                if (AnonymouseHandler.TryGetValue(PacketId, out Type type))
-                {
-                    return type;
-                }
+                return type;
             }
-            if (rose == Rose.Player)
+            return null;
+        }
+        public static Type Player(int PacketId)
+        {
+            if (PlayerHandler.TryGetValue(PacketId, out Type type))
             {
-                if (PlayerHandler.TryGetValue(PacketId, out Type type))
-                {
-                    return type;
-                }
+                return type;
             }
             return null;
         }

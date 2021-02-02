@@ -31,7 +31,7 @@ namespace BungeeCore
                  })
                  .ConfigureAppConfiguration((hostContext, configApp) =>
                  {
-                     string path = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.yaml");
+                     string path = Path.Combine(Directory.GetCurrentDirectory(), "config.yml");
                      configApp.AddYamlFile(path, optional: true);
                      configApp.AddCommandLine(args);
                  })

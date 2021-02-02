@@ -1,9 +1,9 @@
 ﻿using BungeeCore.Common.Attributes;
 using BungeeCore.Common.Extensions.Conver;
 using BungeeCore.Common.Helper;
-using BungeeCore.Common.Sockets;
 using BungeeCore.Model.ClientBound;
 using BungeeCore.Model.ServerBound;
+using BungeeCore.Service.Base;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -13,14 +13,15 @@ using static BungeeCore.Model.ClientBound.Response;
 
 namespace BungeeCore.Service
 {
+    /// <summary>
+    /// 认证服务
+    /// </summary>
     [PacketHandler(PakcetId = 0, Rose = Rose.Anonymouse)]
-    public class LoginService : BaseService
+    public class AuthService : BaseService
     {
         private readonly ILogger Logger;
-        private readonly InfoService infoService;
-        private readonly ServerCore ServerCore;
-        private readonly ClientCore ClientCore;
-        private readonly TunnelServcie TunnelServcie;
+        private readonly ChannelService channelService;
+        private readonly PlayerService playerService;
         private readonly HandlerServcie HandlerServcie;
 
         private Handshake handshake;
@@ -28,13 +29,11 @@ namespace BungeeCore.Service
         private bool IsForge;
         public override Type PacketTypes { get; protected set; } = typeof(Handshake);
         public override object Parameter { set; protected get; }
-        public LoginService(ILogger<LoginService> Logger, InfoService infoService, ServerCore ServerCore, ClientCore ClientCore, TunnelServcie TunnelServcie, HandlerServcie HandlerServcie)
+        public AuthService(ILogger<AuthService> Logger, ChannelService channelService, PlayerService playerService, HandlerServcie HandlerServcie)
         {
             this.Logger = Logger;
-            this.infoService = infoService;
-            this.ServerCore = ServerCore;
-            this.ClientCore = ClientCore;
-            this.TunnelServcie = TunnelServcie;
+            this.channelService = channelService;
+            this.playerService = playerService;
             this.HandlerServcie = HandlerServcie;
         }
         public override IEnumerable<bool> Prerouting()
@@ -58,7 +57,9 @@ namespace BungeeCore.Service
                     {
                         memoryStream.WriteInt(packet.Length);
                         memoryStream.Write(packet);
-                        ServerCore.SendPacket(memoryStream.GetBuffer(), 0, (int)memoryStream.Position);
+                        byte[] buffer = new byte[memoryStream.Position];
+                        Array.Copy(memoryStream.GetBuffer(), buffer, memoryStream.Position);
+                        channelService.SendPacket(buffer);
                     }
                 }
                 yield return false;
@@ -67,10 +68,12 @@ namespace BungeeCore.Service
             PacketTypes = typeof(Login);
             yield return false;
             login = (Login)Parameter;
-            Logger.LogInformation($"PlayerLogin : {login.Name} {DateTime.Now.ToString()}");
-            TunnelServcie.Actions.Push(Login);
-            ClientCore.Start();
-            infoService.Info(login.Name);
+            Logger.LogInformation($"PlayerLogin : {login.Name} {DateTime.Now}");
+
+            channelService.Connect();
+            channelService.Actions.Push(Login);
+      
+            playerService.PlayerName = login.Name;
             // 开始登录
             yield return false;
         }
@@ -88,7 +91,7 @@ namespace BungeeCore.Service
                     memory.WriteInt((int)packet.Position);
                     packet.WriteTo(memory);
                 }
-                ClientCore.SendPacket(memory.ToArray());
+                channelService.SendPacket(memory.ToArray());
             }
             using (MemoryStream memory = new MemoryStream())
             {
@@ -96,11 +99,10 @@ namespace BungeeCore.Service
                 {
                     packet.WriteInt(0);
                     packet.WriteString(login.Name, true);
-
                     memory.WriteInt((int)packet.Position);
                     packet.WriteTo(memory);
                 }
-                ClientCore.SendPacket(memory.ToArray());
+                channelService.SendPacket(memory.ToArray());
             }
         }
     }

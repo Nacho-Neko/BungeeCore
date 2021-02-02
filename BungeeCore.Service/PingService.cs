@@ -2,6 +2,7 @@
 using BungeeCore.Common.Extensions.Conver;
 using BungeeCore.Common.Sockets;
 using BungeeCore.Model.ServerBound;
+using BungeeCore.Service.Base;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace BungeeCore.Service
         private readonly ServerCore ServerCore;
         public override Type PacketTypes { get; protected set; } = typeof(Ping);
         public override object Parameter { set; protected get; }
-        public PingService(ILogger<LoginService> Logger, ServerCore ServerCore)
+        public PingService(ILogger<AuthService> Logger, ServerCore ServerCore)
         {
             this.Logger = Logger;
             this.ServerCore = ServerCore;

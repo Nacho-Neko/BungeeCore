@@ -1,6 +1,7 @@
 ﻿using BungeeCore.Common.Attributes;
 using BungeeCore.Model.ClientBound;
 using BungeeCore.Model.ServerBound;
+using BungeeCore.Service.Base;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -11,31 +12,30 @@ namespace BungeeCore.Service
     [PacketHandler(PakcetId = 1, Rose = Rose.Player)]
     public class EncryptionService : BaseService
     {
+        public bool Enable { get; set; } = false;
         public override Type PacketTypes { get; protected set; } = typeof(EncryptionRequest);
         public override object Parameter { protected get; set; }
         private readonly ILogger Logger;
-        private readonly InfoService infoService;
 
         private ICryptoTransform EncryptorTransform;
         private ICryptoTransform DecryptorTransform;
 
         private EncryptionResponse encryptionResponse;
         private EncryptionRequest encryptionRequest;
-
-        public EncryptionService(ILogger<EncryptionService> Logger, InfoService infoService)
+        public EncryptionService(ILogger<EncryptionService> Logger)
         {
             this.Logger = Logger;
-            this.infoService = infoService;
         }
         public override IEnumerable<bool> Prerouting()
         {
+            Enable = true;
             encryptionResponse = (EncryptionResponse)Parameter;
             SetEncryption(encryptionResponse.SharedSecret, encryptionResponse.VerifyToken);
             yield return true;
         }
         public override IEnumerable<bool> Postrouting()
         {
-            infoService.Encryption = true;
+            Enable = true;
             encryptionRequest = (EncryptionRequest)Parameter;
             SetDecryption(encryptionRequest.PublicKey, encryptionRequest.VerifyToken);
             yield return true;

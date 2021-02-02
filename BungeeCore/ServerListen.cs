@@ -26,8 +26,8 @@ namespace BungeeCore
         public void Listen()
         {
             ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            IPAddress iPAddress = IPAddress.Parse(Configuration["Server:IP"]);
-            IPEndPoint serverIP = new IPEndPoint(iPAddress, Configuration.GetValue<int>("Server:Port"));
+            IPAddress iPAddress = IPAddress.Parse(Configuration["Listeners:IP"]);
+            IPEndPoint serverIP = new IPEndPoint(iPAddress, Configuration.GetValue<int>("Listeners:Port"));
             ServerSocket.Bind(serverIP);
             ServerSocket.NoDelay = true;
             ServerSocket.Listen(100);
@@ -64,9 +64,9 @@ namespace BungeeCore
         private void ProcessAccept(SocketAsyncEventArgs e)
         {
             ILifetimeScope lifetimeScope = LifetimeScope.BeginLifetimeScope();
-            PlayerService playerToken = lifetimeScope.Resolve<PlayerService>();
-            playerToken.serverCore.Accpet(e.AcceptSocket);
-            if (playerToken is IDisposable disposable)
+            ChannelService channelService = lifetimeScope.Resolve<ChannelService>();
+            channelService.serverCore.Accpet(e.AcceptSocket);
+            if (channelService is IDisposable disposable)
             {
                 lifetimeScope.Disposer.AddInstanceForDisposal(disposable);
             }
