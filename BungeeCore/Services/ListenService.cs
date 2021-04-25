@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using BungeeCore.Service;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -9,15 +8,18 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BungeeCore
+namespace BungeeCore.Services
 {
-    public class ServerListen : IHostedService
+    /// <summary>
+    /// 连接管理服务
+    /// </summary>
+    public class ListenService : IHostedService
     {
         public readonly ILogger Logger;                               // 日志
         public readonly IConfiguration Configuration;                 // 配置文件
         private readonly ILifetimeScope LifetimeScope;                // 服务
         private Socket ServerSocket;                                  // Socket
-        public ServerListen(ILogger<ServerListen> Logger, IConfiguration Configuration, ILifetimeScope LifetimeScope)
+        public ListenService(ILogger<ListenService> Logger, IConfiguration Configuration, ILifetimeScope LifetimeScope)
         {
             this.Logger = Logger;
             this.Configuration = Configuration;
@@ -63,9 +65,12 @@ namespace BungeeCore
         /// <param name="acceptEventArg"></param>
         private void ProcessAccept(SocketAsyncEventArgs e)
         {
-            ILifetimeScope lifetimeScope = LifetimeScope.BeginLifetimeScope();
-            ChannelService channelService = lifetimeScope.Resolve<ChannelService>();
-            channelService.serverCore.Accpet(e.AcceptSocket);
+            using (ILifetimeScope lifetimeScope = LifetimeScope.BeginLifetimeScope())
+            {
+                TunnelService tunnelService = lifetimeScope.Resolve<TunnelService>();
+                
+
+            }
             // 接受后面的连接请求
             StartAccept(e);
         }

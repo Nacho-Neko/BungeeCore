@@ -2,6 +2,7 @@
 using Autofac.Extensions.DependencyInjection;
 using BungeeCore.Common.Sockets;
 using BungeeCore.Service;
+using BungeeCore.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,8 +27,8 @@ namespace BungeeCore
              Host.CreateDefaultBuilder(args)
                  .ConfigureServices((hostContext, services) =>
                  {
-                     services.AddHostedService<ServerListen>();
-
+                     services.AddHostedService<ListenService>();
+                     services.AddHostedService<PluginService>();
                  })
                  .ConfigureAppConfiguration((hostContext, configApp) =>
                  {
