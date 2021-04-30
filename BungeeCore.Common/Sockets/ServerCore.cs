@@ -79,11 +79,9 @@ namespace BungeeCore.Common.Sockets
                 {
                     ProcessReceive(ReceiveEventArgs);
                 }
+                return;
             }
-            else
-            {
-                Stop();
-            }
+            Stop();
         }
         public void Stop()
         {

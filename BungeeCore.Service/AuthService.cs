@@ -1,6 +1,7 @@
 ﻿using BungeeCore.Common.Attributes;
 using BungeeCore.Common.Extensions.Conver;
 using BungeeCore.Common.Helper;
+using BungeeCore.Common.Sockets;
 using BungeeCore.Model.ClientBound;
 using BungeeCore.Model.ServerBound;
 using BungeeCore.Service.Base;
@@ -21,7 +22,8 @@ namespace BungeeCore.Service
     public class AuthService : BaseService
     {
         private readonly ILogger Logger;
-        private readonly ChannelService channelService;
+        private readonly ServerCore serverCore;
+        private readonly ClientCore clientCore;
         private readonly PlayerService playerService;
         private readonly HandlerServcie HandlerServcie;
 
@@ -30,10 +32,10 @@ namespace BungeeCore.Service
         private bool IsForge;
         public override Type PacketTypes { get; protected set; } = typeof(Handshake);
         public override object Parameter { set; protected get; }
-        public AuthService(ILogger<AuthService> Logger, ChannelService channelService, PlayerService playerService, HandlerServcie HandlerServcie)
+        public AuthService(ILogger<AuthService> Logger, ServerCore serverCore, ClientCore clientCore, PlayerService playerService, HandlerServcie HandlerServcie)
         {
             this.Logger = Logger;
-            this.channelService = channelService;
+            this.serverCore = serverCore;
             this.playerService = playerService;
             this.HandlerServcie = HandlerServcie;
         }
@@ -60,10 +62,10 @@ namespace BungeeCore.Service
                         memoryStream.Write(packet);
                         byte[] buffer = new byte[memoryStream.Position];
                         Array.Copy(memoryStream.GetBuffer(), buffer, memoryStream.Position);
-                        channelService.SendPacket(buffer);
+                        serverCore.SendPacket(buffer);
                     }
                 }
-                channelService.PlayerDisconnec();
+                serverCore.Stop();
                 yield return Task.FromResult(false);
             }
             IsForge = handshake.ServerAddress.IndexOf("FML") > 0;
@@ -71,10 +73,9 @@ namespace BungeeCore.Service
             yield return Task.FromResult(false);
             login = (Login)Parameter;
             Logger.LogInformation($"PlayerLogin : {login.Name} {DateTime.Now}");
-            channelService.PlayerConnect();
-
             playerService.PlayerName = login.Name;
-            // 开始登录
+
+            serverCore.on
             yield return Task.FromResult(false);
         }
         public void Login()
@@ -91,7 +92,7 @@ namespace BungeeCore.Service
                     memory.WriteInt((int)packet.Position);
                     packet.WriteTo(memory);
                 }
-                channelService.SendPacket(memory.ToArray());
+                clientCore.SendPacket(memory.ToArray());
             }
             using (MemoryStream memory = new MemoryStream())
             {
@@ -102,7 +103,7 @@ namespace BungeeCore.Service
                     memory.WriteInt((int)packet.Position);
                     packet.WriteTo(memory);
                 }
-                channelService.SendPacket(memory.ToArray());
+                clientCore.SendPacket(memory.ToArray());
             }
         }
     }

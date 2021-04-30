@@ -7,9 +7,9 @@ namespace BungeeCore.Common.Sockets
     public class ClientCore
     {
         private readonly IPEndPoint iPEndPoint;
-        private Socket Socket;                                         // Socket
+        private Socket Socket;
         private SocketAsyncEventArgs ReceiveEventArgs;
-        private byte[] ReceiveBuffer = new byte[2097151];
+        private byte[] ReceiveBuffer = new byte[ushort.MaxValue];
         #region 事件
         public delegate void TunnelReceive(byte[] Packet);
         public event TunnelReceive OnTunnelReceive;
@@ -75,11 +75,9 @@ namespace BungeeCore.Common.Sockets
                 {
                     ProcessReceive(ReceiveEventArgs);
                 }
+                return;
             }
-            else
-            {
-                Stop();
-            }
+            Stop();
         }
         private void ProcessConnect(SocketAsyncEventArgs e)
         {
