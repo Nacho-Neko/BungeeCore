@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace BungeeCore.Service
 {
@@ -22,7 +23,7 @@ namespace BungeeCore.Service
             this.Logger = Logger;
             this.ServerCore = ServerCore;
         }
-        public override IEnumerable<bool> Prerouting()
+        public override IEnumerable<Task<bool>> Prerouting()
         {
             Ping ping = (Ping)Parameter;
             using (MemoryStream memoryStream = new MemoryStream())
@@ -34,9 +35,10 @@ namespace BungeeCore.Service
                     memoryStream.WriteInt((int)packet.Position);
                     packet.WriteTo(memoryStream);
                 }
+                Task.Delay(100);
                 ServerCore.SendPacket(memoryStream.GetBuffer(), 0, (int)memoryStream.Position);
             }
-            yield return false;
+            yield return Task.FromResult(true);
         }
     }
 }

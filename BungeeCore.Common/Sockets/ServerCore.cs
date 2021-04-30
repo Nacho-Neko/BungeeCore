@@ -14,7 +14,7 @@ namespace BungeeCore.Common.Sockets
         private SocketAsyncEventArgs ReceiveEventArgs;
         public ServerCore()
         {
-            ReceiveBuffer = new byte[2097151];
+            ReceiveBuffer = new byte[ushort.MaxValue];
             ReceiveEventArgs = new SocketAsyncEventArgs();
             ReceiveEventArgs.SetBuffer(ReceiveBuffer, 0, ReceiveBuffer.Length);
             ReceiveEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(IO_Completed);

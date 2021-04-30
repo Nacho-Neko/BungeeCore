@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BungeeCore.Service.Base
 {
@@ -11,17 +12,17 @@ namespace BungeeCore.Service.Base
         /// 由客户度发送
         /// </summary>
         /// <returns></returns>
-        public virtual IEnumerable<bool> Prerouting()
+        public virtual IEnumerable<Task<bool>> Prerouting()
         {
-            yield return true;
+            yield return Task.FromResult(true);
         }
         /// <summary>
         /// 由服务器发送
         /// </summary>
         /// <returns></returns>
-        public virtual IEnumerable<bool> Postrouting()
+        public virtual IEnumerable<Task<bool>> Postrouting()
         {
-            yield return true;
+            yield return Task.FromResult(true);
         }
     }
 }

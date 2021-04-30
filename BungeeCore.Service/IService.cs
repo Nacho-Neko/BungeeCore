@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BungeeCore.Service
 {
@@ -7,7 +8,7 @@ namespace BungeeCore.Service
     {
         public Type PacketTypes { get; }
         public object Parameter { set; }
-        public IEnumerable<bool> Prerouting();
-        public IEnumerable<bool> Postrouting();
+        public IEnumerable<Task<bool>> Prerouting();
+        public IEnumerable<Task<bool>> Postrouting();
     }
 }

@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 using static BungeeCore.Model.ClientBound.Response;
 
 namespace BungeeCore.Service
@@ -36,12 +37,12 @@ namespace BungeeCore.Service
             this.playerService = playerService;
             this.HandlerServcie = HandlerServcie;
         }
-        public override IEnumerable<bool> Prerouting()
+        public override IEnumerable<Task<bool>> Prerouting()
         {
             handshake = (Handshake)Parameter;
             if (handshake.NextState() == NextState.Status)
             {
-                yield return false;
+                yield return Task.FromResult(false);
                 Response response = new Response("1.8.9", handshake.ProtocolVersion);
                 response.players.online = 10;
                 response.players.max = 100;
@@ -62,20 +63,19 @@ namespace BungeeCore.Service
                         channelService.SendPacket(buffer);
                     }
                 }
-                yield return false;
+                channelService.PlayerDisconnec();
+                yield return Task.FromResult(false);
             }
             IsForge = handshake.ServerAddress.IndexOf("FML") > 0;
             PacketTypes = typeof(Login);
-            yield return false;
+            yield return Task.FromResult(false);
             login = (Login)Parameter;
             Logger.LogInformation($"PlayerLogin : {login.Name} {DateTime.Now}");
-
-            channelService.Connect();
-            channelService.Actions.Push(Login);
+            channelService.PlayerConnect();
 
             playerService.PlayerName = login.Name;
             // 开始登录
-            yield return false;
+            yield return Task.FromResult(false);
         }
         public void Login()
         {

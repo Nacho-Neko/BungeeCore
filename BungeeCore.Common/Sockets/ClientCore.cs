@@ -95,7 +95,7 @@ namespace BungeeCore.Common.Sockets
                 OnTunnelConnect();
             }
         }
-        private void Stop()
+        public void Stop()
         {
             ReceiveBuffer = null;
             ReceiveEventArgs = null;
