@@ -10,7 +10,7 @@ namespace BungeeCore.Service
     /// <summary>
     /// 通道服务
     /// </summary>
-    public class ChannelService : IDisposable
+    public class ChannelService
     {
         public bool Online { get; set; }
         public Stack<Action> Actions = new Stack<Action>();
@@ -21,7 +21,6 @@ namespace BungeeCore.Service
         public readonly ClientCore clientCore;
         private readonly AnalysisService analysisService;
         private readonly EncryptionService encryptionService;
-        private readonly HandlerServcie handlerServcie;
         private readonly ILifetimeScope lifetimeScope;
 
         private delegate Type IHannd(int PacketId);
@@ -36,7 +35,6 @@ namespace BungeeCore.Service
             this.serverCore = serverCore;
             this.clientCore = clientCore;
             this.analysisService = analysisService;
-            this.handlerServcie = handlerServcie;
             this.encryptionService = encryptionService;
             this.lifetimeScope = lifetimeScope;
 
@@ -145,10 +143,6 @@ namespace BungeeCore.Service
             serverCore.OnServerClose -= OnClose;
             clientCore.OnTunnelClose -= OnClose;
             lifetimeScope.Dispose();
-        }
-        public void Dispose()
-        {
-
         }
     }
 }

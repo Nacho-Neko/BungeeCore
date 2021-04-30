@@ -4,12 +4,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.30711.63
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BungeeCore", "BungeeCore\BungeeCore.csproj", "{4827DA3A-60A6-46AD-82D3-0F6DEE10436F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3E056827-3EA1-4623-A6E4-6322BE88125D} = {3E056827-3EA1-4623-A6E4-6322BE88125D}
+		{3450CA39-9A12-4BC3-8FB8-D2B63AF78BB5} = {3450CA39-9A12-4BC3-8FB8-D2B63AF78BB5}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BungeeCore.Model", "BungeeCore.Model\BungeeCore.Model.csproj", "{3E056827-3EA1-4623-A6E4-6322BE88125D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BungeeCore.Common", "BungeeCore.Common\BungeeCore.Common.csproj", "{3450CA39-9A12-4BC3-8FB8-D2B63AF78BB5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BungeeCore.Service", "BungeeCore.Service\BungeeCore.Service.csproj", "{2DC23E46-A645-4241-B856-9F2AF451B9DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BungeeCore.Service", "BungeeCore.Service\BungeeCore.Service.csproj", "{2DC23E46-A645-4241-B856-9F2AF451B9DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

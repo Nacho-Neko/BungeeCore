@@ -1,25 +1,19 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Net.Sockets;
 
 namespace BungeeCore.Common.Sockets
 {
-    public class ServerCore : IDisposable
+    public class ServerCore
     {
         public delegate void ServerReceive(byte[] Packet);
         public event ServerReceive OnServerReceive;
         public delegate void ServerClose();
         public event ServerClose OnServerClose;
-        private readonly ILogger ILogger;                               // 日志
-        private readonly IConfiguration IConfiguration;                 // 配置文件
         private byte[] ReceiveBuffer;
         private Socket Socket;
         private SocketAsyncEventArgs ReceiveEventArgs;
-        public ServerCore(ILogger<ServerCore> ILogger, IConfiguration IConfiguration)
+        public ServerCore()
         {
-            this.ILogger = ILogger;
-            this.IConfiguration = IConfiguration;
             ReceiveBuffer = new byte[2097151];
             ReceiveEventArgs = new SocketAsyncEventArgs();
             ReceiveEventArgs.SetBuffer(ReceiveBuffer, 0, ReceiveBuffer.Length);
@@ -27,44 +21,24 @@ namespace BungeeCore.Common.Sockets
         }
         public void SendPacket(byte[] buffer, int offset, int count)
         {
-            try
-            {
-                SocketAsyncEventArgs SendEventArgs = new SocketAsyncEventArgs();
-                SendEventArgs.SetBuffer(buffer, offset, count);
-                Socket.SendAsync(SendEventArgs);
-            }
-            catch (Exception ex)
-            {
-                ILogger.LogError(ex.Message);
-            }
+
+            SocketAsyncEventArgs SendEventArgs = new SocketAsyncEventArgs();
+            SendEventArgs.SetBuffer(buffer, offset, count);
+            Socket.SendAsync(SendEventArgs);
         }
         public void SendPacket(byte[] Packet)
         {
-            try
-            {
-                SocketAsyncEventArgs SendEventArgs = new SocketAsyncEventArgs();
-                SendEventArgs.SetBuffer(Packet);
-                Socket.SendAsync(SendEventArgs);
-            }
-            catch (Exception ex)
-            {
-                ILogger.LogError(ex.Message);
-            }
+            SocketAsyncEventArgs SendEventArgs = new SocketAsyncEventArgs();
+            SendEventArgs.SetBuffer(Packet);
+            Socket.SendAsync(SendEventArgs);
         }
         public void Accpet(Socket Socket)
         {
-            try
+            this.Socket = Socket;
+            bool willRaiseEvent = Socket.ReceiveAsync(ReceiveEventArgs);
+            if (!willRaiseEvent)
             {
-                this.Socket = Socket;
-                bool willRaiseEvent = Socket.ReceiveAsync(ReceiveEventArgs);
-                if (!willRaiseEvent)
-                {
-                    ProcessReceive(ReceiveEventArgs);
-                }
-            }
-            catch (Exception ex)
-            {
-                ILogger.LogError(ex.Message);
+                ProcessReceive(ReceiveEventArgs);
             }
         }
         /// <summary>
@@ -118,10 +92,6 @@ namespace BungeeCore.Common.Sockets
             Socket.Shutdown(SocketShutdown.Both);
             OnServerClose?.Invoke();
             Socket.Close();
-        }
-        public void Dispose()
-        {
-
         }
     }
 }

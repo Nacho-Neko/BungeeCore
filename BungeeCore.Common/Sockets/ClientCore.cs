@@ -1,15 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 
 namespace BungeeCore.Common.Sockets
 {
-    public class ClientCore : IDisposable
+    public class ClientCore
     {
-        private readonly ILogger Logger;                               // 日志
-        private readonly IConfiguration Configuration;                 // 配置文件
+        private readonly IPEndPoint iPEndPoint;
         private Socket Socket;                                         // Socket
         private SocketAsyncEventArgs ReceiveEventArgs;
         private byte[] ReceiveBuffer = new byte[2097151];
@@ -20,12 +17,12 @@ namespace BungeeCore.Common.Sockets
         public event TunnelClose OnTunnelClose;
         public delegate void TunnelConnect();
         public event TunnelConnect OnTunnelConnect;
-        
+
         #endregion
-        public ClientCore(ILogger<ClientCore> Logger, IConfiguration Configuration)
+
+        public ClientCore(IPEndPoint iPEndPoint)
         {
-            this.Logger = Logger;
-            this.Configuration = Configuration;
+            this.iPEndPoint = iPEndPoint;
         }
         public void SendPacket(byte[] Packet)
         {
@@ -35,22 +32,13 @@ namespace BungeeCore.Common.Sockets
         }
         public void Start()
         {
-            if (!IPAddress.TryParse(Configuration["Nat:IP"], out IPAddress ipaddr))
-            {
-                IPAddress[] iplist = Dns.GetHostAddresses(Configuration["Nat:IP"]);
-                if (iplist != null && iplist.Length > 0)
-                {
-                    ipaddr = iplist[0];
-                }
-            }
-            IPEndPoint localEndPoint = new IPEndPoint(ipaddr, Configuration.GetValue<int>("Nat:Port"));
-            Socket = new Socket(localEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+            Socket = new Socket(iPEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
             {
                 NoDelay = true
             };
             SocketAsyncEventArgs connSocketAsyncEventArgs = new SocketAsyncEventArgs
             {
-                RemoteEndPoint = localEndPoint
+                RemoteEndPoint = iPEndPoint
             };
             connSocketAsyncEventArgs.Completed += IO_Completed;
             if (!Socket.ConnectAsync(connSocketAsyncEventArgs))
@@ -69,7 +57,6 @@ namespace BungeeCore.Common.Sockets
                     ProcessConnect(e);
                     break;
                 default:
-                    Logger.LogError("套接字上完成的最后一个操作不是接收或发送或连接。");
                     throw new ArgumentException("套接字上完成的最后一个操作不是接收或发送或连接。");
             }
         }
@@ -115,10 +102,6 @@ namespace BungeeCore.Common.Sockets
             OnTunnelClose?.Invoke();
             Socket.Shutdown(SocketShutdown.Both);
             Socket.Close();
-        }
-        public void Dispose()
-        {
-
         }
     }
 }
